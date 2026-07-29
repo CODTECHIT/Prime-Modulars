@@ -49,7 +49,7 @@ export function Hero() {
 
       <motion.div
         style={{ y, opacity }}
-        className="relative z-10 flex flex-1 flex-col justify-center px-6 pt-24 pb-8 sm:pt-32 sm:pb-12 lg:px-16 xl:px-24"
+        className="relative z-10 flex flex-1 flex-col justify-center px-6 pt-32 pb-8 sm:pt-48 sm:pb-12 lg:px-16 xl:px-24"
       >
         <div className="w-full max-w-7xl mx-auto flex flex-col items-start text-left">
           {/* Location & Est */}
@@ -130,11 +130,11 @@ export function Hero() {
         className="relative mb-6 sm:mb-12 w-[92%] mx-auto lg:w-[85%] max-w-6xl z-20 shrink-0"
       >
         <div className="bg-[#464039]/90 sm:bg-[#2A2723]/80 backdrop-blur-xl border border-white/10 rounded-2xl sm:rounded-3xl p-3 sm:p-8 flex flex-row items-stretch justify-between divide-x divide-white/10 shadow-2xl">
-          
+
           <div className="flex flex-col items-center text-center w-1/4 px-1 sm:px-2 group">
             <Box className="size-5 sm:size-10 text-gold mb-2 sm:mb-4 group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
             <h3 className="text-white text-[0.45rem] sm:text-sm font-bold tracking-wider mb-1 uppercase">3D VISUALIZATION</h3>
-            <p className="text-white/70 text-[0.45rem] sm:text-xs font-medium leading-tight">See it before<br/> we build it</p>
+            <p className="text-white/70 text-[0.45rem] sm:text-xs font-medium leading-tight">See it before<br /> we build it</p>
           </div>
 
           <div className="flex flex-col items-center text-center w-1/4 px-1 sm:px-2 group">
@@ -146,7 +146,7 @@ export function Hero() {
           <div className="flex flex-col items-center text-center w-1/4 px-1 sm:px-2 group">
             <PenTool className="size-5 sm:size-10 text-gold mb-2 sm:mb-4 group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
             <h3 className="text-white text-[0.45rem] sm:text-sm font-bold tracking-wider mb-1 uppercase">PREMIUM QUALITY</h3>
-            <p className="text-white/70 text-[0.45rem] sm:text-xs font-medium leading-tight">Materials &<br/> Workmanship</p>
+            <p className="text-white/70 text-[0.45rem] sm:text-xs font-medium leading-tight">Materials &<br /> Workmanship</p>
           </div>
 
           <div className="flex flex-col items-center text-center w-1/4 px-1 sm:px-2 group">

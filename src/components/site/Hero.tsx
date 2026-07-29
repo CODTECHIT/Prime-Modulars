@@ -112,12 +112,7 @@ export function Hero() {
             >
               Explore Portfolio <ArrowRight className="size-4" />
             </Link>
-            <Link
-              to="/contact"
-              className="flex items-center justify-center gap-2 rounded-full border border-white px-8 py-3.5 text-xs font-semibold tracking-[0.15em] uppercase text-white transition-all hover:bg-white hover:text-black shadow-lg"
-            >
-              <Play className="size-4 fill-current" /> Free Consultation
-            </Link>
+
           </motion.div>
         </div>
       </motion.div>

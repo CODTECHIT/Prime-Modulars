@@ -1,0 +1,238 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Prime Modulars   Premium design system
+ * Charcoal · Amber Gold · Ivory · Refined luxury aesthetic
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-gold-muted: var(--gold-muted);
+  --color-charcoal: var(--charcoal);
+  --color-charcoal-deep: var(--charcoal-deep);
+  --color-charcoal-mid: var(--charcoal-mid);
+  --color-ivory: var(--ivory);
+  --color-ivory-dim: var(--ivory-dim);
+  --color-wood: var(--wood);
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.25rem;
+
+  /* Brand colors   refined luxury palette */
+  --espresso-deep: #0A0807;
+  --espresso: #15110E;
+  --espresso-mid: #261E18;
+  --gold: #C49B3D;
+  --gold-soft: #E3D1AC;
+  --gold-muted: #8E7036;
+  --ivory: #FFFFFF;
+  --ivory-dim: #F3F0EB;
+  --wood: #73563A;
+
+  /* Semantic tokens   LIGHT theme */
+  --background: var(--ivory);
+  --foreground: var(--espresso-deep);
+  --card: #FFFFFF;
+  --card-foreground: var(--espresso-deep);
+  --popover: var(--ivory);
+  --popover-foreground: var(--espresso);
+  --primary: var(--gold-muted);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--ivory-dim);
+  --secondary-foreground: var(--espresso);
+  --muted: var(--ivory-dim);
+  --muted-foreground: #7A6B5D;
+  --accent: var(--gold);
+  --accent-foreground: var(--espresso-deep);
+  --destructive: #7A2020;
+  --destructive-foreground: #FEF2F2;
+  --border: #E0D6C8;
+  --input: #FFFFFF;
+  --ring: var(--gold);
+
+  /* Shadows   enhanced luxury */
+  --shadow-luxe: 0 24px 60px -16px rgba(10, 8, 7, 0.12), 0 8px 24px -8px rgba(10, 8, 7, 0.06);
+  --shadow-gold: 0 0 0 1px rgba(196, 155, 61, 0.2), 0 15px 40px -12px rgba(196, 155, 61, 0.35);
+  --shadow-card: 0 4px 24px -6px rgba(10, 8, 7, 0.05);
+  --shadow-soft: 0 2px 16px -4px rgba(10, 8, 7, 0.04);
+  --gradient-gold: linear-gradient(135deg, var(--gold-soft), var(--gold) 55%, var(--gold-muted));
+  --glow-gold: 0 0 30px rgba(196, 155, 61, 0.15);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 300;
+    line-height: 1.05;
+  }
+
+  ::selection {
+    background: var(--gold-soft);
+    color: var(--espresso-deep);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--ivory-dim);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--gold-muted);
+    border-radius: 99px;
+  }
+}
+
+/* ─── Utilities ──────────────────────────────────────────────────── */
+
+@utility label-caps {
+  font-size: 0.6875rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+
+
+
+@utility gold-glow {
+  background-image: radial-gradient(ellipse 70% 40% at 50% 0%,
+      rgba(196, 155, 61, 0.12),
+      transparent 65%);
+}
+
+@utility rule-gold {
+  height: 1px;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(196, 155, 61, 0.8),
+      transparent);
+}
+
+@utility link-gold {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 1px;
+    width: 100%;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+@utility btn-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 2rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.6875rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-weight: 700;
+  border-radius: 9999px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  box-shadow: 0 8px 32px -8px rgba(142, 112, 54, 0.4);
+
+  &:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 16px 48px -8px rgba(142, 112, 54, 0.5);
+    background: linear-gradient(135deg, var(--gold-soft), var(--gold) 55%, var(--gold-muted));
+    color: var(--espresso-deep);
+  }
+}
+
+@utility btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 2rem;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  font-size: 0.6875rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-weight: 600;
+  border-radius: 9999px;
+  background: transparent;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: var(--primary);
+    color: var(--primary-foreground);
+    background: var(--gold-muted);
+  }
+}
+
+@utility glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(232, 223, 211, 0.8);
+}

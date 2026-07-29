@@ -1,0 +1,267 @@
+import { useState, useCallback, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { X, ZoomIn, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Reveal, SectionLabel } from "./Reveal";
+import { GALLERY, GALLERY_CATEGORIES, type GalleryCategory, type GalleryItem } from "@/data/site";
+
+const ALL_CATS = GALLERY_CATEGORIES;
+
+function GalleryCard({
+  item,
+  index,
+  onClick,
+}: {
+  item: GalleryItem;
+  index: number;
+  onClick: () => void;
+}) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <Reveal delay={(index % 6) * 0.07}>
+      <button
+        onClick={onClick}
+        className="group relative block aspect-[4/3] w-full overflow-hidden rounded-xl border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
+        aria-label={`View ${item.caption}`}
+      >
+        {!loaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-card">
+            <Loader2 className="size-6 animate-spin text-[var(--primary)]" />
+          </div>
+        )}
+        <img
+          src={item.src}
+          alt={item.caption}
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          className={`size-full object-cover transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110 ${loaded ? "opacity-100" : "opacity-0"}`}
+        />
+        {/* Overlay */}
+        <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-[oklch(0.04_0.005_60/0.85)] via-[oklch(0.04_0.005_60/0.2)] to-transparent opacity-0 transition-opacity duration-400 group-hover:opacity-100 group-focus-visible:opacity-100">
+          <div className="flex items-end justify-between p-4">
+            <p className="text-left text-xs leading-snug text-foreground font-medium">
+              {item.caption}
+            </p>
+            <span className="ml-2 grid shrink-0 size-8 place-items-center rounded-full border border-[var(--primary)] text-primary">
+              <ZoomIn className="size-3.5" />
+            </span>
+          </div>
+        </div>
+      </button>
+    </Reveal>
+  );
+}
+
+function Lightbox({
+  items,
+  startIndex,
+  onClose,
+}: {
+  items: GalleryItem[];
+  startIndex: number;
+  onClose: () => void;
+}) {
+  const [index, setIndex] = useState(startIndex);
+  const [loaded, setLoaded] = useState(false);
+  const item = items[index];
+
+  const prev = useCallback(
+    () => setIndex((i) => (i - 1 + items.length) % items.length),
+    [items.length],
+  );
+  const next = useCallback(() => setIndex((i) => (i + 1) % items.length), [items.length]);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [index]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose, prev, next]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center"
+      onClick={onClose}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-[oklch(0.04_0.005_60/0.97)] backdrop-blur-md" />
+
+      {/* Image container */}
+      <div
+        className="relative z-10 mx-4 flex max-h-[90svh] max-w-[90vw] flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="relative overflow-hidden rounded-xl border border-[var(--primary)]"
+          >
+            {!loaded && (
+              <div className="absolute inset-0 flex items-center justify-center bg-background">
+                <Loader2 className="size-8 animate-spin text-[var(--primary)]" />
+              </div>
+            )}
+            <img
+              src={item.src}
+              alt={item.caption}
+              onLoad={() => setLoaded(true)}
+              className={`block max-h-[80svh] max-w-[88vw] object-contain ${loaded ? "opacity-100" : "opacity-0"}`}
+            />
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Caption & counter */}
+        <div className="mt-4 flex items-center justify-between">
+          <p className="max-w-sm text-sm text-foreground/90">{item.caption}</p>
+          <span className="label-caps shrink-0 text-[var(--primary)]">
+            {index + 1} / {items.length}
+          </span>
+        </div>
+      </div>
+
+      {/* Close */}
+      <button
+        onClick={onClose}
+        aria-label="Close lightbox"
+        className="absolute top-6 right-6 z-20 grid size-10 place-items-center rounded-full border border-primary/40 bg-[var(--card)] text-foreground/90 transition-all hover:border-primary hover:text-primary"
+      >
+        <X className="size-4" />
+      </button>
+
+      {/* Prev / Next */}
+      {items.length > 1 && (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); prev(); }}
+            aria-label="Previous image"
+            className="absolute left-4 top-1/2 z-20 -translate-y-1/2 grid size-12 place-items-center rounded-full border border-primary/40 bg-[var(--card)] text-foreground/90 transition-all hover:border-primary hover:text-primary"
+          >
+            <ChevronLeft className="size-5" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); next(); }}
+            aria-label="Next image"
+            className="absolute right-4 top-1/2 z-20 -translate-y-1/2 grid size-12 place-items-center rounded-full border border-primary/40 bg-[var(--card)] text-foreground/90 transition-all hover:border-primary hover:text-primary"
+          >
+            <ChevronRight className="size-5" />
+          </button>
+        </>
+      )}
+    </motion.div>
+  );
+}
+
+const PAGE_SIZE = 12;
+
+export function Portfolio() {
+  const [cat, setCat] = useState<GalleryCategory>("All");
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  const [lightbox, setLightbox] = useState<{ items: GalleryItem[]; index: number } | null>(null);
+
+  const filtered = cat === "All" ? GALLERY : GALLERY.filter((g) => g.category === cat);
+  const shown = filtered.slice(0, visible);
+
+  const openLightbox = (index: number) =>
+    setLightbox({ items: filtered, index });
+
+  const handleCatChange = (c: GalleryCategory) => {
+    setCat(c);
+    setVisible(PAGE_SIZE);
+  };
+
+  return (
+    <section
+      id="portfolio"
+      className="relative overflow-hidden bg-background py-24 sm:py-36"
+    >
+      {/* Top divider */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-px w-3/4 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent"
+      />
+
+      <div className="mx-auto max-w-7xl px-6 lg:px-12">
+        {/* Header */}
+        <Reveal>
+          <SectionLabel>Portfolio</SectionLabel>
+          <h2 className="mt-5 max-w-xl text-4xl font-light leading-tight text-foreground sm:text-6xl">
+            Crafted spaces,
+            <br />
+            <span className="italic text-primary">real results.</span>
+          </h2>
+        </Reveal>
+
+        {/* Category tabs */}
+        <Reveal delay={0.1}>
+          <div className="mt-10 flex flex-wrap gap-2">
+            {ALL_CATS.map((c) => (
+              <button
+                key={c}
+                onClick={() => handleCatChange(c as GalleryCategory)}
+                className={`rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-widest transition-all duration-300 ${
+                  cat === c
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-[var(--primary)] text-muted-foreground hover:border-[var(--primary)] hover:text-foreground/90"
+                }`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        </Reveal>
+
+        {/* Grid */}
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+          {shown.map((item, i) => (
+            <GalleryCard
+              key={`${item.src}-${i}`}
+              item={item}
+              index={i}
+              onClick={() => openLightbox(i)}
+            />
+          ))}
+        </div>
+
+        {/* Load more */}
+        {visible < filtered.length && (
+          <Reveal>
+            <div className="mt-12 flex justify-center">
+              <button
+                onClick={() => setVisible((v) => v + PAGE_SIZE)}
+                className="btn-outline"
+              >
+                Load More ({filtered.length - visible} remaining)
+              </button>
+            </div>
+          </Reveal>
+        )}
+      </div>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {lightbox && (
+          <Lightbox
+            items={lightbox.items}
+            startIndex={lightbox.index}
+            onClose={() => setLightbox(null)}
+          />
+        )}
+      </AnimatePresence>
+    </section>
+  );
+}

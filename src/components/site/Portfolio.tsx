@@ -1,8 +1,8 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, ZoomIn, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { X, ZoomIn, ChevronLeft, ChevronRight, Loader2, Phone, MessageSquare } from "lucide-react";
 import { Reveal, SectionLabel } from "./Reveal";
-import { GALLERY, GALLERY_CATEGORIES, type GalleryCategory, type GalleryItem } from "@/data/site";
+import { GALLERY, GALLERY_CATEGORIES, CONTACT, type GalleryCategory, type GalleryItem } from "@/data/site";
 
 const ALL_CATS = GALLERY_CATEGORIES;
 
@@ -63,6 +63,7 @@ function Lightbox({
 }) {
   const [index, setIndex] = useState(startIndex);
   const [loaded, setLoaded] = useState(false);
+  const [showContact, setShowContact] = useState(false);
   const item = items[index];
 
   const prev = useCallback(
@@ -73,6 +74,7 @@ function Lightbox({
 
   useEffect(() => {
     setLoaded(false);
+    setShowContact(false);
   }, [index]);
 
   useEffect(() => {
@@ -99,36 +101,92 @@ function Lightbox({
 
       {/* Image container */}
       <div
-        className="relative z-10 mx-4 flex max-h-[90svh] max-w-[90vw] flex-col"
+        className="relative z-10 mx-4 flex max-h-[90svh] max-w-[90vw] flex-col items-center"
         onClick={(e) => e.stopPropagation()}
       >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="relative overflow-hidden rounded-xl border border-[var(--primary)]"
-          >
-            {!loaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-background">
-                <Loader2 className="size-8 animate-spin text-[var(--primary)]" />
-              </div>
-            )}
-            <img
-              src={item.src}
-              alt={item.caption}
-              onLoad={() => setLoaded(true)}
-              className={`block max-h-[80svh] max-w-[88vw] object-contain ${loaded ? "opacity-100" : "opacity-0"}`}
-            />
-          </motion.div>
-        </AnimatePresence>
+        <div className="relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="relative overflow-hidden rounded-xl border border-[var(--primary)] cursor-pointer"
+              onClick={() => setShowContact(true)}
+            >
+              {!loaded && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background">
+                  <Loader2 className="size-8 animate-spin text-[var(--primary)]" />
+                </div>
+              )}
+              <img
+                src={item.src}
+                alt={item.caption}
+                onLoad={() => setLoaded(true)}
+                className={`block max-h-[75svh] max-w-[88vw] object-contain ${loaded ? "opacity-100" : "opacity-0"}`}
+              />
+              
+              {/* Tap to explore indicator */}
+              {!showContact && loaded && (
+                 <motion.div 
+                   initial={{ opacity: 0, y: 20 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   transition={{ delay: 0.5 }}
+                   className="absolute inset-x-0 bottom-6 flex justify-center pointer-events-none"
+                 >
+                    <span className="bg-black/70 text-white text-xs px-4 py-2 rounded-full backdrop-blur-md flex items-center gap-2">
+                       <span className="animate-pulse block size-1.5 rounded-full bg-primary" />
+                       Tap image to explore
+                    </span>
+                 </motion.div>
+              )}
+
+              {/* Contact Overlay */}
+              <AnimatePresence>
+                {showContact && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center gap-5 p-6"
+                    onClick={(e) => { e.stopPropagation(); setShowContact(false); }}
+                  >
+                    <h3 className="text-white text-xl sm:text-2xl font-display mb-1 text-center">
+                      Interested in this design?
+                    </h3>
+                    
+                    <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
+                      <a
+                        href={`tel:${CONTACT.phoneMain}`}
+                        className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[var(--gold)] text-white px-4 py-3 text-sm font-medium transition-transform hover:scale-105"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Phone className="size-4" />
+                        Call Now
+                      </a>
+                      <a
+                        href={`https://wa.me/${CONTACT.whatsapp}?text=Hello%2C%20I'm%20interested%20in%20the%20${encodeURIComponent(item.category)}%20design%20(${encodeURIComponent(item.caption)}).`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] text-white px-4 py-3 text-sm font-medium transition-transform hover:scale-105"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MessageSquare className="size-4" />
+                        WhatsApp
+                      </a>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
         {/* Caption & counter */}
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-4 flex w-full items-center justify-between">
           <p className="max-w-sm text-sm text-foreground/90">{item.caption}</p>
-          <span className="label-caps shrink-0 text-[var(--primary)]">
+          <span className="label-caps shrink-0 text-[var(--primary)] ml-4">
             {index + 1} / {items.length}
           </span>
         </div>
@@ -138,7 +196,7 @@ function Lightbox({
       <button
         onClick={onClose}
         aria-label="Close lightbox"
-        className="absolute top-6 right-6 z-20 grid size-10 place-items-center rounded-full border border-primary/40 bg-[var(--card)] text-foreground/90 transition-all hover:border-primary hover:text-primary"
+        className="absolute top-6 right-6 z-[110] grid size-10 place-items-center rounded-full border border-primary/40 bg-[var(--card)] text-foreground/90 transition-all hover:border-primary hover:text-primary hover:scale-110"
       >
         <X className="size-4" />
       </button>
@@ -149,14 +207,14 @@ function Lightbox({
           <button
             onClick={(e) => { e.stopPropagation(); prev(); }}
             aria-label="Previous image"
-            className="absolute left-4 top-1/2 z-20 -translate-y-1/2 grid size-12 place-items-center rounded-full border border-primary/40 bg-[var(--card)] text-foreground/90 transition-all hover:border-primary hover:text-primary"
+            className="absolute left-4 top-1/2 z-[110] -translate-y-1/2 grid size-10 sm:size-12 place-items-center rounded-full border border-primary/40 bg-[var(--card)] text-foreground/90 transition-all hover:border-primary hover:text-primary hover:scale-110"
           >
             <ChevronLeft className="size-5" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); next(); }}
             aria-label="Next image"
-            className="absolute right-4 top-1/2 z-20 -translate-y-1/2 grid size-12 place-items-center rounded-full border border-primary/40 bg-[var(--card)] text-foreground/90 transition-all hover:border-primary hover:text-primary"
+            className="absolute right-4 top-1/2 z-[110] -translate-y-1/2 grid size-10 sm:size-12 place-items-center rounded-full border border-primary/40 bg-[var(--card)] text-foreground/90 transition-all hover:border-primary hover:text-primary hover:scale-110"
           >
             <ChevronRight className="size-5" />
           </button>
@@ -169,7 +227,15 @@ function Lightbox({
 const PAGE_SIZE = 12;
 
 export function Portfolio() {
-  const [cat, setCat] = useState<GalleryCategory>("All");
+  const [cat, setCat] = useState<GalleryCategory>(() => {
+    if (typeof window !== "undefined" && window.location.hash) {
+      const hashCat = decodeURIComponent(window.location.hash.replace("#", ""));
+      if (ALL_CATS.includes(hashCat as GalleryCategory)) {
+        return hashCat as GalleryCategory;
+      }
+    }
+    return "All";
+  });
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [lightbox, setLightbox] = useState<{ items: GalleryItem[]; index: number } | null>(null);
 
@@ -183,6 +249,22 @@ export function Portfolio() {
     setCat(c);
     setVisible(PAGE_SIZE);
   };
+
+  useEffect(() => {
+    // Listen for hash changes
+    const handleHashChange = () => {
+      if (window.location.hash) {
+        const hashCat = decodeURIComponent(window.location.hash.replace("#", ""));
+        if (ALL_CATS.includes(hashCat as GalleryCategory)) {
+          setCat(hashCat as GalleryCategory);
+          setVisible(PAGE_SIZE);
+        }
+      }
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
 
   return (
     <section

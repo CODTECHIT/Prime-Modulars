@@ -9,8 +9,17 @@ const LINKS = [
   { href: "/expertise", label: "Expertise" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/process", label: "Process" },
-  { href: "/clients", label: "Clients" },
+  { href: "/clients", label: "Testimonials" },
   { href: "/", label: "Home" },
+];
+
+const MOBILE_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/expertise", label: "Expertise" },
+  { href: "/portfolio", label: "Portfolio" },
+  { href: "/process", label: "Process" },
+  { href: "/clients", label: "Testimonials" },
 ];
 
 const LEFT = LINKS.slice(0, 3);
@@ -36,10 +45,8 @@ export function Navbar() {
       initial={{ y: -60, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        solid
-          ? "border-b border-border/50 bg-background/95 py-2 shadow-sm backdrop-blur-xl"
-          : "bg-transparent py-4"
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 border-b border-border/50 bg-[#FDFBF7] shadow-sm backdrop-blur-xl ${
+        solid ? "py-2" : "py-4"
       }`}
     >
       {/* Desktop */}
@@ -50,7 +57,7 @@ export function Navbar() {
             <Link
               key={l.href}
               to={l.href}
-              className={`label-caps link-gold transition-colors duration-300 hover:text-primary ${solid ? 'text-foreground/80' : 'text-ivory/90'}`}
+              className="label-caps link-gold transition-colors duration-300 hover:text-primary text-foreground/80"
             >
               {l.label}
             </Link>
@@ -81,7 +88,7 @@ export function Navbar() {
               <Link
                 key={l.href}
                 to={l.href}
-                className={`label-caps inline-flex items-center gap-2 rounded-full border px-5 py-2 transition-all duration-300 ${solid ? 'border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground' : 'border-ivory/40 text-ivory hover:bg-ivory hover:text-primary'}`}
+                className="label-caps inline-flex items-center gap-2 rounded-full border px-5 py-2 transition-all duration-300 border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground"
               >
                 {l.label} <ChevronRight className="size-3" />
               </Link>
@@ -89,7 +96,7 @@ export function Navbar() {
               <Link
                 key={l.href}
                 to={l.href}
-                className={`label-caps link-gold transition-colors duration-300 hover:text-primary ${solid ? 'text-foreground/80' : 'text-ivory/90'}`}
+                className="label-caps link-gold transition-colors duration-300 hover:text-primary text-foreground/80"
               >
                 {l.label}
               </Link>
@@ -99,36 +106,37 @@ export function Navbar() {
       </nav>
 
       {/* Mobile */}
-      <nav className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 lg:hidden">
-        <button
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle menu"
-          className="grid size-10 place-items-center rounded-full border border-primary/30 text-foreground/80 transition-colors hover:border-primary hover:text-primary"
-        >
-          {open ? <X className="size-4" /> : <Menu className="size-4" />}
-        </button>
-
+      <nav className="flex items-center justify-between px-5 py-3 lg:hidden">
         <Link
           to="/"
           aria-label="Prime Modulars home"
-          className="mx-auto grid place-items-center"
+          className="flex items-center gap-3 group"
         >
           <span
-            className={`grid place-items-center transition-all duration-500 ${
-              solid ? "size-12" : "size-16"
+            className={`grid place-items-center transition-all duration-500 shrink-0 group-hover:scale-105 ${
+              solid ? "size-10" : "size-12"
             }`}
           >
-            <img src="/logo.png" alt="Prime Modulars logo" className="size-full object-contain drop-shadow-lg" />
+            <img src="/logo.png" alt="Prime Modulars logo" className="size-full object-contain drop-shadow-md" />
           </span>
+          <div className="flex flex-col justify-center border-l border-[#B48E4B]/40 pl-3 py-0.5">
+            <span className="font-serif text-[0.85rem] leading-none tracking-[0.15em] text-[#15110E] uppercase flex items-baseline">
+              <span className="font-bold">Prime</span>
+              <span className="font-light ml-1 opacity-90">Modular</span>
+            </span>
+            <span className="font-sans text-[0.45rem] font-bold leading-none tracking-[0.4em] text-[#B48E4B] uppercase mt-1.5">
+              Interiors
+            </span>
+          </div>
         </Link>
 
-        <a
-          href={`tel:${CONTACT.phoneMain}`}
-          aria-label="Call Prime Modulars"
-          className="grid size-10 place-items-center rounded-full border border-primary/40 text-primary transition-all hover:bg-primary hover:text-primary-foreground"
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Toggle menu"
+          className="grid size-10 place-items-center rounded-full border border-primary/30 text-foreground/80 transition-colors hover:border-primary hover:text-primary shrink-0"
         >
-          <Phone className="size-4" />
-        </a>
+          {open ? <X className="size-4" /> : <Menu className="size-4" />}
+        </button>
       </nav>
 
       {/* Mobile menu */}
@@ -142,7 +150,7 @@ export function Navbar() {
             className="overflow-hidden border-t border-border bg-background/95 backdrop-blur-2xl lg:hidden"
           >
             <div className="flex flex-col gap-0 px-6 py-6">
-              {LINKS.map((l, i) => (
+              {MOBILE_LINKS.map((l, i) => (
                 <motion.div
                   key={l.href}
                   initial={{ opacity: 0, x: -16 }}

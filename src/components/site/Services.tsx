@@ -1,62 +1,74 @@
-import { ChefHat, DoorOpen, Tv, Columns3, Flame, Layers, TreePine, ArrowRight } from "lucide-react";
+import { ChefHat, DoorOpen, Tv, Columns3, Flame, Box, ArrowRight } from "lucide-react";
 import { Reveal, SectionLabel } from "./Reveal";
 import { scrollToId } from "./useSmoothScroll";
-import { useState } from "react";
+import type { GalleryCategory } from "@/data/site";
+import { useNavigate } from "@tanstack/react-router";
 
-const SERVICES = [
+const SERVICES: Array<{
+  icon: any;
+  title: string;
+  text: string;
+  image: string;
+  num: string;
+  portfolioCategory: GalleryCategory;
+}> = [
   {
     icon: ChefHat,
     title: "Modular Kitchen",
-    text: "Ergonomic, elegant kitchens tailored to how you cook and live   from island layouts to L-shaped galleries.",
+    text: "Ergonomic, elegant kitchens tailored to how you cook and live.",
     image: "/assets/gallery/kitchen-01.jpg",
     num: "01",
+    portfolioCategory: "Kitchens",
   },
   {
     icon: DoorOpen,
     title: "Wardrobes",
-    text: "Space-smart wardrobe solutions with premium laminates, soft-close hardware and walk-in configurations.",
+    text: "Space-smart wardrobe solutions with premium laminates.",
     image: "/assets/gallery/wardrobe-01.jpg",
     num: "02",
+    portfolioCategory: "Wardrobes",
   },
   {
     icon: Tv,
     title: "TV Units",
-    text: "Statement media walls and floating TV units that anchor your living room with purpose and style.",
+    text: "Statement media walls and floating TV units.",
     image: "/assets/gallery/tv-unit-01.jpg",
     num: "03",
+    portfolioCategory: "TV Units",
   },
   {
     icon: Columns3,
-    title: "Hall Partitions",
-    text: "Stylish dividers   lattice, slat, or glass   that add privacy without closing off light or space.",
+    title: "Hall Partition",
+    text: "Stylish dividers that add privacy without closing off space.",
     image: "/assets/gallery/entryway-01.jpg",
     num: "04",
+    portfolioCategory: "Entryway",
   },
   {
     icon: Flame,
     title: "Pooja Units",
-    text: "Serene, beautifully detailed prayer spaces crafted in teak, marble, and premium engineered wood.",
-    image: "/assets/gallery/pooja-01.jpg",
+    text: "Serene, beautifully detailed prayer spaces.",
+    image: "/assets/gallery/pooja-02.jpg",
     num: "05",
+    portfolioCategory: "Pooja Units",
   },
   {
-    icon: Layers,
-    title: "False Ceilings",
-    text: "Layered lighting and ceiling design with cove lights, trays, and profiles that transform ambience.",
-    image: "/assets/gallery/ceiling-01.jpg",
-    num: "06",
-  },
-  {
-    icon: TreePine,
-    title: "Wooden Ceilings",
-    text: "Warm, textured wooden ceiling treatments   slat, plank or coffered   for a boutique, resort feel.",
+    icon: Box,
+    title: "3D Designing",
+    text: "Photorealistic 3D renders that help you visualize your space.",
     image: "/assets/gallery/ceiling-04.jpg",
-    num: "07",
+    num: "06",
+    portfolioCategory: "All",
   },
 ];
 
 export function Services() {
-  const [hovered, setHovered] = useState<number | null>(null);
+  const navigate = useNavigate();
+
+  const handleSelectService = (category: GalleryCategory) => {
+    // Navigate to the portfolio page, passing the category as a hash
+    navigate({ to: "/portfolio", hash: category });
+  };
 
   return (
     <section
@@ -69,9 +81,7 @@ export function Services() {
         className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-px w-3/4 bg-gradient-to-r from-transparent via-primary/60 to-transparent"
       />
 
-
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-12">
-        {/* Section header */}
         <Reveal>
           <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -85,92 +95,82 @@ export function Services() {
               onClick={() => scrollToId("portfolio")}
               className="label-caps flex shrink-0 items-center gap-2 text-primary transition-all hover:gap-4"
             >
-              View Portfolio <ArrowRight className="size-4" />
+              View All <ArrowRight className="size-4" />
             </button>
           </div>
         </Reveal>
 
         {/* Services grid */}
-        <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:mt-16 lg:grid-cols-3 lg:gap-5 xl:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
           {SERVICES.map((s, i) => (
             <Reveal key={s.title} delay={i * 0.06}>
               <article
-                className="group relative h-full overflow-hidden rounded-2xl border border-border bg-background transition-all duration-500 hover:border-[var(--primary)] hover:shadow-[var(--shadow-gold)]"
-                onMouseEnter={() => setHovered(i)}
-                onMouseLeave={() => setHovered(null)}
+                className="group relative flex flex-col justify-between overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] bg-[#FDFBF7] p-3 sm:p-5 shadow-sm border border-border/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-pointer"
+                onClick={() => handleSelectService(s.portfolioCategory)}
               >
-                {/* Image */}
-                <div className="relative aspect-[4/3] overflow-hidden">
+                {/* Header: Icon + Title */}
+                <div className="mb-3 sm:mb-5 flex flex-row items-center gap-3 sm:gap-4">
+                  <div className="grid size-8 sm:size-12 shrink-0 place-items-center text-primary">
+                    <s.icon className="size-6 sm:size-8" strokeWidth={1.2} />
+                  </div>
+                  <h3 className="font-sans text-[0.65rem] sm:text-sm font-bold uppercase tracking-wider text-foreground leading-snug w-full sm:w-32">
+                    {s.title.split(' ').map((word, idx) => <span key={idx} className="block">{word}</span>)}
+                  </h3>
+                </div>
+
+                {/* Image Area */}
+                <div className="relative h-[140px] sm:h-[220px] w-full rounded-xl sm:rounded-2xl overflow-hidden">
                   <img
                     src={s.image}
                     alt={s.title}
                     loading="lazy"
-                    className="size-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-108"
+                    className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />
-                  {/* Dark overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.04_0.005_60/0.65)] to-transparent" />
-                  {/* Number badge */}
-                  <span className="absolute top-3 right-3 font-display text-4xl leading-none text-[var(--gold)]/40 group-hover:text-[var(--gold)] transition-colors duration-500">
-                    {s.num}
-                  </span>
-                </div>
-
-                {/* Content */}
-                <div className="p-5">
-                  <div className="flex items-center gap-2.5">
-                    <s.icon
-                      className="size-4 shrink-0 text-primary"
-                      strokeWidth={1.3}
-                    />
-                    <h3 className="font-sans text-sm font-semibold uppercase tracking-widest text-foreground">
-                      {s.title}
-                    </h3>
-                  </div>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                    {s.text}
-                  </p>
-
-                  <div className="mt-5 flex items-center gap-2 text-primary opacity-0 translate-y-2 transition-all duration-400 group-hover:opacity-100 group-hover:translate-y-0">
-                    <span className="label-caps text-[0.6rem]">Learn More</span>
-                    <ArrowRight className="size-3" />
+                  {/* Arrow Button */}
+                  <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 flex size-8 sm:size-12 items-center justify-center rounded-full bg-[#FDFBF7] shadow-sm text-primary transition-transform group-hover:scale-110">
+                    <div className="flex size-6 sm:size-8 items-center justify-center rounded-full bg-white shadow-sm border border-primary/10">
+                       <ArrowRight className="size-3 sm:size-4" />
+                    </div>
                   </div>
                 </div>
               </article>
             </Reveal>
           ))}
+        </div>
 
-          {/* CTA card */}
-          <Reveal delay={SERVICES.length * 0.06}>
+        {/* Full Width CTA card */}
+        <div className="mt-8 sm:mt-12">
+          <Reveal delay={0.2}>
             <div
-              className="relative flex h-full min-h-[280px] flex-col justify-end overflow-hidden rounded-2xl p-6 cursor-pointer"
+              className="relative flex min-h-[280px] w-full flex-col justify-end overflow-hidden rounded-[2rem] p-8 sm:p-12 cursor-pointer"
               style={{
-                  background:
-                    "linear-gradient(145deg, var(--gold-muted), oklch(0.55_0.08_78/0.06))",
+                background: "linear-gradient(145deg, #18181A, #0A0A0B)",
                 border: "1px solid var(--primary)",
               }}
               onClick={() => scrollToId("contact")}
             >
               <div
                 aria-hidden
-                className="pointer-events-none absolute -top-12 -right-12 size-48 rounded-full border border-[var(--primary)]"
-              />
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -bottom-20 -left-20 size-64 rounded-full border border-border"
-              />
-              <h3 className="font-display text-3xl font-light text-foreground">
-                Bring Your
+                className="pointer-events-none absolute top-12 right-12 opacity-10"
+              >
+                 <svg width="400" height="400" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                   <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                     <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5"/>
+                   </pattern>
+                   <rect width="100" height="100" fill="url(#grid)" className="text-[var(--primary)]" />
+                 </svg>
+              </div>
+              <h3 className="relative z-10 font-display text-4xl font-light text-white sm:text-5xl">
+                Bring Your Dream Space
                 <br />
-                <span className="italic text-primary">Dream Space</span>
-                <br />
-                to Life
+                <span className="italic text-primary">to Life</span>
               </h3>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Get a personalized 3D design and expert guidance from our studio.
+              <p className="relative z-10 mt-4 max-w-md text-base text-gray-300">
+                Get personalized designs and expert guidance.
               </p>
               <button
-                className="btn-gold mt-6 self-start"
-                onClick={() => scrollToId("contact")}
+                className="relative z-10 mt-8 self-start rounded-md bg-[var(--gold)] px-6 py-3 font-semibold text-white transition-all hover:bg-[var(--gold-muted)] flex items-center gap-2"
+                onClick={(e) => { e.stopPropagation(); scrollToId("contact"); }}
               >
                 Book Consultation <ArrowRight className="size-4" />
               </button>

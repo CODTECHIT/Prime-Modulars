@@ -10,7 +10,7 @@ const HIGHLIGHTS = [
 
 export function About() {
   return (
-    <section id="about" className="relative overflow-hidden bg-background py-28 sm:py-36">
+    <section id="about" className="relative overflow-hidden bg-background pt-12 pb-28 sm:pt-16 sm:pb-36">
       {/* Background accent */}
       <div
         aria-hidden

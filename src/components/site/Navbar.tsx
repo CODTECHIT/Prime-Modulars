@@ -122,7 +122,7 @@ export function Navbar() {
           <div className="flex flex-col justify-center border-l border-[#B48E4B]/40 pl-3 py-0.5">
             <span className="font-serif text-[0.85rem] leading-none tracking-[0.15em] text-[#15110E] uppercase flex items-baseline">
               <span className="font-bold">Prime</span>
-              <span className="font-light ml-1 opacity-90">Modular</span>
+              <span className="font-light ml-1 opacity-90">Modulars</span>
             </span>
             <span className="font-sans text-[0.45rem] font-bold leading-none tracking-[0.4em] text-[#B48E4B] uppercase mt-1.5">
               Interiors

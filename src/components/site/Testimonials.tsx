@@ -93,11 +93,11 @@ export function Testimonials() {
                     alt="Client project showcase"
                     className="absolute inset-0 size-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background" />
-                  <div className="absolute bottom-5 left-5">
-                    <p className="label-caps text-primary">{t.project}</p>
-                    <p className="mt-1 font-display text-xl text-foreground">{t.name}</p>
-                    <p className="label-caps text-[0.6rem] text-muted-foreground">{t.location}</p>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                  <div className="absolute bottom-5 left-5 z-10">
+                    <p className="label-caps font-bold text-primary drop-shadow-md">{t.project}</p>
+                    <p className="mt-1 font-display font-bold text-2xl text-white drop-shadow-md">{t.name}</p>
+                    <p className="label-caps text-[0.6rem] font-bold text-white/80 drop-shadow-md mt-1">{t.location}</p>
                   </div>
                 </div>
 

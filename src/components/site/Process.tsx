@@ -117,12 +117,12 @@ export function Process() {
               className="w-full object-cover"
               style={{ maxHeight: "22rem", objectPosition: "center 30%" }}
             />
-            <div className="absolute inset-0 bg-black/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10" />
             <div className="absolute bottom-6 left-8">
-              <p className="font-display text-3xl font-light text-foreground">
+              <p className="font-display text-3xl font-bold text-white drop-shadow-md">
                 See it before
                 <br />
-                <span className="italic text-primary">you build it.</span>
+                <span className="italic text-primary drop-shadow-md">you build it.</span>
               </p>
             </div>
           </div>

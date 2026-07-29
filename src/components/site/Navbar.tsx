@@ -65,11 +65,11 @@ export function Navbar() {
             className="mx-auto flex items-center gap-3 group absolute left-1/2 top-2 -translate-x-1/2"
           >
             <span
-              className={`relative grid place-items-center rounded-full border border-primary/30 bg-card transition-all duration-500 group-hover:border-primary group-hover:shadow-[0_0_24px_var(--primary)] ${
-                solid ? "size-[6rem] p-1.5" : "size-[11rem] p-3 shadow-2xl"
+              className={`relative grid place-items-center transition-all duration-500 group-hover:scale-105 ${
+                solid ? "size-[5rem]" : "size-[9.5rem]"
               }`}
             >
-              <img src="/logo.png" alt="Prime Modulars logo" className="size-full object-contain drop-shadow-md" />
+              <img src="/logo.png" alt="Prime Modulars logo" className="size-full object-contain drop-shadow-xl" />
             </span>
           </Link>
         </div>
@@ -114,11 +114,11 @@ export function Navbar() {
           className="mx-auto grid place-items-center"
         >
           <span
-            className={`grid place-items-center rounded-full border border-primary/30 bg-card p-1 transition-all duration-500 ${
-              solid ? "size-14" : "size-20"
+            className={`grid place-items-center transition-all duration-500 ${
+              solid ? "size-12" : "size-16"
             }`}
           >
-            <img src="/logo.png" alt="Prime Modulars logo" className="size-full object-contain" />
+            <img src="/logo.png" alt="Prime Modulars logo" className="size-full object-contain drop-shadow-lg" />
           </span>
         </Link>
 

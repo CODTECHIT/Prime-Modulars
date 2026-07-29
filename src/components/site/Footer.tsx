@@ -42,7 +42,7 @@ export function Footer() {
               alt="Prime Modulars logo"
               width={80}
               height={80}
-              className="size-20 rounded-full border border-primary/30 bg-card p-1 object-contain"
+              className="size-20 object-contain drop-shadow-md"
             />
             <div>
               <p className="font-display text-lg font-light text-foreground">

@@ -44,11 +44,11 @@ export function SplashIntro() {
               }}
               className="relative flex items-center justify-center"
             >
-              <div className="size-32 rounded-full border border-primary/30 bg-card p-4 shadow-2xl flex items-center justify-center">
+              <div className="size-36 flex items-center justify-center">
                 <img
                   src="/logo.png"
                   alt="Prime Modulars"
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain drop-shadow-2xl"
                 />
               </div>
             </motion.div>

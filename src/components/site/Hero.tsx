@@ -49,7 +49,7 @@ export function Hero() {
 
       <motion.div
         style={{ y, opacity }}
-        className="relative z-10 flex flex-1 flex-col justify-center px-6 pt-24 pb-32 sm:pt-32 sm:pb-48 lg:px-16 xl:px-24"
+        className="relative z-10 flex flex-1 flex-col justify-center px-6 pt-24 pb-8 sm:pt-32 sm:pb-12 lg:px-16 xl:px-24"
       >
         <div className="w-full max-w-7xl mx-auto flex flex-col items-start text-left">
           {/* Location & Est */}
@@ -127,7 +127,7 @@ export function Hero() {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 0.8 }}
-        className="absolute bottom-6 sm:bottom-12 w-[92%] left-1/2 -translate-x-1/2 lg:w-[85%] max-w-6xl z-20"
+        className="relative mb-6 sm:mb-12 w-[92%] mx-auto lg:w-[85%] max-w-6xl z-20 shrink-0"
       >
         <div className="bg-[#464039]/90 sm:bg-[#2A2723]/80 backdrop-blur-xl border border-white/10 rounded-2xl sm:rounded-3xl p-3 sm:p-8 flex flex-row items-stretch justify-between divide-x divide-white/10 shadow-2xl">
           

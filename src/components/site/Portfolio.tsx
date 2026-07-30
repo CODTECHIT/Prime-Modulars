@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, ZoomIn, ChevronLeft, ChevronRight, Loader2, Phone, MessageSquare } from "lucide-react";
 import { Reveal, SectionLabel } from "./Reveal";
 import { GALLERY, GALLERY_CATEGORIES, CONTACT, type GalleryCategory, type GalleryItem } from "@/data/site";
+import { getGalleryImages, type GalleryImage } from "@/lib/server/gallery";
+import { withCache } from "@/lib/cache";
 
 const ALL_CATS = GALLERY_CATEGORIES;
 
@@ -36,7 +38,6 @@ function GalleryCard({
           onLoad={() => setLoaded(true)}
           className={`size-full object-cover transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110 ${loaded ? "opacity-100" : "opacity-0"}`}
         />
-        {/* Overlay */}
         <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-[oklch(0.04_0.005_60/0.85)] via-[oklch(0.04_0.005_60/0.2)] to-transparent opacity-0 transition-opacity duration-400 group-hover:opacity-100 group-focus-visible:opacity-100">
           <div className="flex items-end justify-between p-4">
             <p className="text-left text-xs leading-snug text-foreground font-medium">
@@ -96,10 +97,8 @@ function Lightbox({
       className="fixed inset-0 z-[100] flex items-center justify-center"
       onClick={onClose}
     >
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-[oklch(0.04_0.005_60/0.97)] backdrop-blur-md" />
 
-      {/* Image container */}
       <div
         className="relative z-10 mx-4 flex max-h-[90svh] max-w-[90vw] flex-col items-center"
         onClick={(e) => e.stopPropagation()}
@@ -126,10 +125,9 @@ function Lightbox({
                 onLoad={() => setLoaded(true)}
                 className={`block max-h-[75svh] max-w-[88vw] object-contain ${loaded ? "opacity-100" : "opacity-0"}`}
               />
-              
-              {/* Tap to explore indicator */}
+
               {!showContact && loaded && (
-                 <motion.div 
+                 <motion.div
                    initial={{ opacity: 0, y: 20 }}
                    animate={{ opacity: 1, y: 0 }}
                    transition={{ delay: 0.5 }}
@@ -142,7 +140,6 @@ function Lightbox({
                  </motion.div>
               )}
 
-              {/* Contact Overlay */}
               <AnimatePresence>
                 {showContact && (
                   <motion.div
@@ -155,7 +152,7 @@ function Lightbox({
                     <h3 className="text-white text-xl sm:text-2xl font-display mb-1 text-center">
                       Interested in this design?
                     </h3>
-                    
+
                     <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
                       <a
                         href={`tel:${CONTACT.phoneMain}`}
@@ -183,7 +180,6 @@ function Lightbox({
           </AnimatePresence>
         </div>
 
-        {/* Caption & counter */}
         <div className="mt-4 flex w-full items-center justify-between">
           <p className="max-w-sm text-sm text-foreground/90">{item.caption}</p>
           <span className="label-caps shrink-0 text-[var(--primary)] ml-4">
@@ -192,7 +188,6 @@ function Lightbox({
         </div>
       </div>
 
-      {/* Close */}
       <button
         onClick={onClose}
         aria-label="Close lightbox"
@@ -201,7 +196,6 @@ function Lightbox({
         <X className="size-4" />
       </button>
 
-      {/* Prev / Next */}
       {items.length > 1 && (
         <>
           <button
@@ -226,20 +220,45 @@ function Lightbox({
 
 const PAGE_SIZE = 12;
 
+function useGalleryItems() {
+  const [items, setItems] = useState<GalleryItem[]>([]);
+
+  useEffect(() => {
+    setItems(GALLERY);
+
+    withCache("gallery_images", () => getGalleryImages({}), 5 * 60 * 1000)
+      .then((imgs: GalleryImage[]) => {
+        if (imgs.length > 0) {
+          setItems(
+            imgs.map((img) => ({
+              src: img.src,
+              category: img.category as Exclude<GalleryCategory, "All">,
+              caption: img.caption,
+            })),
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  return { items };
+}
+
 export function Portfolio() {
+  const { items: galleryItems } = useGalleryItems();
+  const dynamicCats = ["All", ...Array.from(new Set(galleryItems.map(item => item.category)))];
+
   const [cat, setCat] = useState<GalleryCategory>(() => {
     if (typeof window !== "undefined" && window.location.hash) {
       const hashCat = decodeURIComponent(window.location.hash.replace("#", ""));
-      if (ALL_CATS.includes(hashCat as GalleryCategory)) {
-        return hashCat as GalleryCategory;
-      }
+      return hashCat as GalleryCategory;
     }
     return "All";
   });
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [lightbox, setLightbox] = useState<{ items: GalleryItem[]; index: number } | null>(null);
 
-  const filtered = cat === "All" ? GALLERY : GALLERY.filter((g) => g.category === cat);
+  const filtered = cat === "All" ? galleryItems : galleryItems.filter((g) => g.category === cat);
   const shown = filtered.slice(0, visible);
 
   const openLightbox = (index: number) =>
@@ -251,14 +270,11 @@ export function Portfolio() {
   };
 
   useEffect(() => {
-    // Listen for hash changes
     const handleHashChange = () => {
       if (window.location.hash) {
         const hashCat = decodeURIComponent(window.location.hash.replace("#", ""));
-        if (ALL_CATS.includes(hashCat as GalleryCategory)) {
-          setCat(hashCat as GalleryCategory);
-          setVisible(PAGE_SIZE);
-        }
+        setCat(hashCat as GalleryCategory);
+        setVisible(PAGE_SIZE);
       }
     };
 
@@ -271,14 +287,12 @@ export function Portfolio() {
       id="portfolio"
       className="relative overflow-hidden bg-background py-24 sm:py-36"
     >
-      {/* Top divider */}
       <div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-px w-3/4 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent"
       />
 
       <div className="mx-auto max-w-7xl px-6 lg:px-12">
-        {/* Header */}
         <Reveal>
           <SectionLabel>Portfolio</SectionLabel>
           <h2 className="mt-5 max-w-xl text-4xl font-light leading-tight text-foreground sm:text-6xl">
@@ -288,10 +302,9 @@ export function Portfolio() {
           </h2>
         </Reveal>
 
-        {/* Category tabs */}
         <Reveal delay={0.1}>
           <div className="mt-10 flex flex-wrap gap-2">
-            {ALL_CATS.map((c) => (
+            {["All", ...Array.from(new Set(galleryItems.map(item => item.category)))].map((c) => (
               <button
                 key={c}
                 onClick={() => handleCatChange(c as GalleryCategory)}
@@ -307,7 +320,6 @@ export function Portfolio() {
           </div>
         </Reveal>
 
-        {/* Grid */}
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
           {shown.map((item, i) => (
             <GalleryCard
@@ -319,7 +331,6 @@ export function Portfolio() {
           ))}
         </div>
 
-        {/* Load more */}
         {visible < filtered.length && (
           <Reveal>
             <div className="mt-12 flex justify-center">
@@ -334,7 +345,6 @@ export function Portfolio() {
         )}
       </div>
 
-      {/* Lightbox */}
       <AnimatePresence>
         {lightbox && (
           <Lightbox

@@ -1,11 +1,32 @@
-import { ChefHat, DoorOpen, Tv, Columns3, Flame, Box, ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  ChefHat,
+  DoorOpen,
+  Tv,
+  Columns3,
+  Flame,
+  Box,
+  ArrowRight,
+  type LucideIcon,
+} from "lucide-react";
 import { Reveal, SectionLabel } from "./Reveal";
 import { scrollToId } from "./useSmoothScroll";
 import type { GalleryCategory } from "@/data/site";
 import { useNavigate } from "@tanstack/react-router";
+import { getServices, type Service } from "@/lib/server/services";
+import { withCache } from "@/lib/cache";
 
-const SERVICES: Array<{
-  icon: any;
+const ICON_MAP: Record<string, LucideIcon> = {
+  ChefHat,
+  DoorOpen,
+  Tv,
+  Columns3,
+  Flame,
+  Box,
+};
+
+const FALLBACK_SERVICES: Array<{
+  icon: LucideIcon;
   title: string;
   text: string;
   image: string;
@@ -62,11 +83,34 @@ const SERVICES: Array<{
   },
 ];
 
+const DEFAULT_IMAGE = "/assets/gallery/kitchen-01.jpg";
+
 export function Services() {
   const navigate = useNavigate();
+  const [dbServices, setDbServices] = useState<Service[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    withCache("services", () => getServices(), 5 * 60 * 1000)
+      .then((data) => {
+        if (data.length > 0) setDbServices(data);
+      })
+      .catch(() => {})
+      .finally(() => setLoaded(true));
+  }, []);
+
+  const displayServices = loaded && dbServices.length > 0
+    ? dbServices.map((s, i) => ({
+        icon: ICON_MAP[s.iconName] ?? Box,
+        title: s.title,
+        text: s.description,
+        image: s.mainImage || DEFAULT_IMAGE,
+        num: String(i + 1).padStart(2, "0"),
+        portfolioCategory: (s.portfolioCategory || "All") as GalleryCategory,
+      }))
+    : FALLBACK_SERVICES;
 
   const handleSelectService = (category: GalleryCategory) => {
-    // Navigate to the portfolio page, passing the category as a hash
     navigate({ to: "/portfolio", hash: category });
   };
 
@@ -75,7 +119,6 @@ export function Services() {
       id="services"
       className="grain relative overflow-hidden bg-card py-24 sm:py-36"
     >
-      {/* Background glow */}
       <div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-px w-3/4 bg-gradient-to-r from-transparent via-primary/60 to-transparent"
@@ -100,15 +143,13 @@ export function Services() {
           </div>
         </Reveal>
 
-        {/* Services grid */}
         <div className="mt-10 grid grid-cols-2 gap-3 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
-          {SERVICES.map((s, i) => (
+          {displayServices.map((s, i) => (
             <Reveal key={s.title} delay={i * 0.06}>
               <article
                 className="group relative flex flex-col justify-between overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] bg-[#FDFBF7] p-3 sm:p-5 shadow-sm border border-border/40 transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-pointer"
                 onClick={() => handleSelectService(s.portfolioCategory)}
               >
-                {/* Header: Icon + Title */}
                 <div className="mb-3 sm:mb-5 flex flex-row items-center gap-3 sm:gap-4">
                   <div className="grid size-8 sm:size-12 shrink-0 place-items-center text-primary">
                     <s.icon className="size-6 sm:size-8" strokeWidth={1.2} />
@@ -118,7 +159,6 @@ export function Services() {
                   </h3>
                 </div>
 
-                {/* Image Area */}
                 <div className="relative h-[140px] sm:h-[220px] w-full rounded-xl sm:rounded-2xl overflow-hidden">
                   <img
                     src={s.image}
@@ -126,7 +166,6 @@ export function Services() {
                     loading="lazy"
                     className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />
-                  {/* Arrow Button */}
                   <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 flex size-8 sm:size-12 items-center justify-center rounded-full bg-[#FDFBF7] shadow-sm text-primary transition-transform group-hover:scale-110">
                     <div className="flex size-6 sm:size-8 items-center justify-center rounded-full bg-white shadow-sm border border-primary/10">
                        <ArrowRight className="size-3 sm:size-4" />
@@ -138,7 +177,6 @@ export function Services() {
           ))}
         </div>
 
-        {/* Full Width CTA card */}
         <div className="mt-8 sm:mt-12">
           <Reveal delay={0.2}>
             <div

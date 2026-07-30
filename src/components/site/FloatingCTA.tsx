@@ -49,9 +49,7 @@ export function FloatingCTA() {
                   href={`tel:${CONTACT.phoneMain}`}
                   className="flex items-center gap-3 rounded-full border border-primary/40 bg-[var(--card)] px-5 py-3 shadow-[0_8px_32px_oklch(0.04_0.005_60/0.8)] backdrop-blur-xl transition-all hover:border-primary"
                 >
-                  <span className="text-sm font-medium text-foreground">
-                    Call Now
-                  </span>
+                  <span className="text-sm font-medium text-foreground">Call Now</span>
                   <Phone className="size-4 text-primary" strokeWidth={1.5} />
                 </a>
               </motion.div>
@@ -64,7 +62,8 @@ export function FloatingCTA() {
             aria-label={open ? "Close contact options" : "Open contact options"}
             className="grid size-14 place-items-center rounded-full shadow-[0_8px_40px_var(--primary)] transition-all duration-300 hover:scale-110"
             style={{
-              background: "linear-gradient(135deg, oklch(0.80 0.05 82), oklch(0.68 0.09 80) 60%, oklch(0.52 0.08 78))",
+              background:
+                "linear-gradient(135deg, oklch(0.80 0.05 82), oklch(0.68 0.09 80) 60%, oklch(0.52 0.08 78))",
             }}
           >
             <motion.span

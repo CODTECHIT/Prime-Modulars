@@ -4,7 +4,10 @@ import { ArrowRight, Play, MapPin, Box, Award, PenTool, Headset } from "lucide-r
 import { Link } from "@tanstack/react-router";
 
 const SLIDES = [
-  { src: "/assets/gallery/living-01.jpg", alt: "Luxury living room with geometric wood partition   Guntur residence" },
+  {
+    src: "/assets/gallery/living-01.jpg",
+    alt: "Luxury living room with geometric wood partition   Guntur residence",
+  },
   { src: "/assets/gallery/living-07.jpg", alt: "Grand living area with beautiful wood ceiling" },
   { src: "/assets/gallery/kitchen-04.jpg", alt: "Luxury modular kitchen with brass lighting" },
   { src: "/assets/gallery/bedroom-06.jpg", alt: "Premium master bedroom with teak headboard" },
@@ -96,7 +99,8 @@ export function Hero() {
             transition={{ delay: 0.6, duration: 0.9 }}
             className="mt-8 max-w-xl text-base sm:text-lg font-medium leading-relaxed text-white drop-shadow-xl"
           >
-            Premium modular interiors with full 3D visualization designed and crafted to perfection before a single panel is cut.
+            Premium modular interiors with full 3D visualization designed and crafted to perfection
+            before a single panel is cut.
           </motion.p>
 
           {/* Buttons */}
@@ -112,7 +116,6 @@ export function Hero() {
             >
               Explore Portfolio <ArrowRight className="size-4" />
             </Link>
-
           </motion.div>
         </div>
       </motion.div>
@@ -125,31 +128,58 @@ export function Hero() {
         className="relative mb-6 sm:mb-12 w-[92%] mx-auto lg:w-[85%] max-w-6xl z-20 shrink-0"
       >
         <div className="bg-[#464039]/90 sm:bg-[#2A2723]/80 backdrop-blur-xl border border-white/10 rounded-2xl sm:rounded-3xl p-3 sm:p-8 flex flex-row items-stretch justify-between divide-x divide-white/10 shadow-2xl">
-
           <div className="flex flex-col items-center text-center w-1/4 px-1 sm:px-2 group">
-            <Box className="size-5 sm:size-10 text-gold mb-2 sm:mb-4 group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
-            <h3 className="text-white text-[0.45rem] sm:text-sm font-bold tracking-wider mb-1 uppercase">3D VISUALIZATION</h3>
-            <p className="text-white/70 text-[0.45rem] sm:text-xs font-medium leading-tight">See it before<br /> we build it</p>
+            <Box
+              className="size-5 sm:size-10 text-gold mb-2 sm:mb-4 group-hover:scale-110 transition-transform duration-300"
+              strokeWidth={1.5}
+            />
+            <h3 className="text-white text-[0.45rem] sm:text-sm font-bold tracking-wider mb-1 uppercase">
+              3D VISUALIZATION
+            </h3>
+            <p className="text-white/70 text-[0.45rem] sm:text-xs font-medium leading-tight">
+              See it before
+              <br /> we build it
+            </p>
           </div>
 
           <div className="flex flex-col items-center text-center w-1/4 px-1 sm:px-2 group">
-            <Award className="size-5 sm:size-10 text-gold mb-2 sm:mb-4 group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
-            <h3 className="text-white text-[0.45rem] sm:text-sm font-bold tracking-wider mb-1 uppercase">20+ YEARS</h3>
-            <p className="text-white/70 text-[0.45rem] sm:text-xs font-medium leading-tight">of experience</p>
+            <Award
+              className="size-5 sm:size-10 text-gold mb-2 sm:mb-4 group-hover:scale-110 transition-transform duration-300"
+              strokeWidth={1.5}
+            />
+            <h3 className="text-white text-[0.45rem] sm:text-sm font-bold tracking-wider mb-1 uppercase">
+              20+ YEARS
+            </h3>
+            <p className="text-white/70 text-[0.45rem] sm:text-xs font-medium leading-tight">
+              of experience
+            </p>
           </div>
 
           <div className="flex flex-col items-center text-center w-1/4 px-1 sm:px-2 group">
-            <PenTool className="size-5 sm:size-10 text-gold mb-2 sm:mb-4 group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
-            <h3 className="text-white text-[0.45rem] sm:text-sm font-bold tracking-wider mb-1 uppercase">PREMIUM QUALITY</h3>
-            <p className="text-white/70 text-[0.45rem] sm:text-xs font-medium leading-tight">Materials &<br /> Workmanship</p>
+            <PenTool
+              className="size-5 sm:size-10 text-gold mb-2 sm:mb-4 group-hover:scale-110 transition-transform duration-300"
+              strokeWidth={1.5}
+            />
+            <h3 className="text-white text-[0.45rem] sm:text-sm font-bold tracking-wider mb-1 uppercase">
+              PREMIUM QUALITY
+            </h3>
+            <p className="text-white/70 text-[0.45rem] sm:text-xs font-medium leading-tight">
+              Materials &<br /> Workmanship
+            </p>
           </div>
 
           <div className="flex flex-col items-center text-center w-1/4 px-1 sm:px-2 group">
-            <Headset className="size-5 sm:size-10 text-gold mb-2 sm:mb-4 group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
-            <h3 className="text-white text-[0.45rem] sm:text-sm font-bold tracking-wider mb-1 uppercase">END TO END</h3>
-            <p className="text-white/70 text-[0.45rem] sm:text-xs font-medium leading-tight">Support</p>
+            <Headset
+              className="size-5 sm:size-10 text-gold mb-2 sm:mb-4 group-hover:scale-110 transition-transform duration-300"
+              strokeWidth={1.5}
+            />
+            <h3 className="text-white text-[0.45rem] sm:text-sm font-bold tracking-wider mb-1 uppercase">
+              END TO END
+            </h3>
+            <p className="text-white/70 text-[0.45rem] sm:text-xs font-medium leading-tight">
+              Support
+            </p>
           </div>
-
         </div>
       </motion.div>
     </section>

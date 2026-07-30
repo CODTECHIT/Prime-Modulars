@@ -51,7 +51,9 @@ function StepCard({ step, i }: { step: (typeof STEPS)[number]; i: number }) {
       className="group relative overflow-hidden rounded-2xl border border-border bg-card p-7 transition-all duration-500 hover:border-primary/50 hover:shadow-[var(--shadow-gold)]"
     >
       {/* Gradient fill */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-100 transition-opacity duration-500 group-hover:opacity-100`} />
+      <div
+        className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-100 transition-opacity duration-500 group-hover:opacity-100`}
+      />
 
       {/* Step number (large, faded) */}
       <span
@@ -79,10 +81,7 @@ function StepCard({ step, i }: { step: (typeof STEPS)[number]; i: number }) {
 
 export function Process() {
   return (
-    <section
-      id="process"
-      className="relative overflow-hidden bg-card py-24 sm:py-36"
-    >
+    <section id="process" className="relative overflow-hidden bg-card py-24 sm:py-36">
       {/* Divider */}
       <div
         aria-hidden
@@ -97,12 +96,11 @@ export function Process() {
             <h2 className="mt-5 text-4xl font-light leading-tight text-foreground sm:text-5xl lg:text-6xl">
               From first conversation
               <br />
-              to{" "}
-              <span className="italic text-primary">final reveal.</span>
+              to <span className="italic text-primary">final reveal.</span>
             </h2>
             <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-muted-foreground">
-              A transparent, four-step journey with full 3D visualization so there are
-              no surprises   only delight.
+              A transparent, four-step journey with full 3D visualization so there are no surprises
+              only delight.
             </p>
           </div>
         </Reveal>

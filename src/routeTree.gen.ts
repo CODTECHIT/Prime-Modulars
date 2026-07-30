@@ -13,10 +13,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as ContactRouteImport } from './routes/contact'
-import { Route as ExpertiseRouteImport } from './routes/expertise'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as ProcessRouteImport } from './routes/process'
+import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ModularAdminRouteImport } from './routes/modular/admin'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -38,11 +39,6 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ExpertiseRoute = ExpertiseRouteImport.update({
-  id: '/expertise',
-  path: '/expertise',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PortfolioRoute = PortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
@@ -53,9 +49,19 @@ const ProcessRoute = ProcessRouteImport.update({
   path: '/process',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModularAdminRoute = ModularAdminRouteImport.update({
+  id: '/modular/admin',
+  path: '/modular/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -64,20 +70,22 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/clients': typeof ClientsRoute
   '/contact': typeof ContactRoute
-  '/expertise': typeof ExpertiseRoute
   '/portfolio': typeof PortfolioRoute
   '/process': typeof ProcessRoute
+  '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/modular/admin': typeof ModularAdminRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/clients': typeof ClientsRoute
   '/contact': typeof ContactRoute
-  '/expertise': typeof ExpertiseRoute
   '/portfolio': typeof PortfolioRoute
   '/process': typeof ProcessRoute
+  '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/modular/admin': typeof ModularAdminRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -85,10 +93,11 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/clients': typeof ClientsRoute
   '/contact': typeof ContactRoute
-  '/expertise': typeof ExpertiseRoute
   '/portfolio': typeof PortfolioRoute
   '/process': typeof ProcessRoute
+  '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/modular/admin': typeof ModularAdminRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,30 +106,33 @@ export interface FileRouteTypes {
     | '/about'
     | '/clients'
     | '/contact'
-    | '/expertise'
     | '/portfolio'
     | '/process'
+    | '/services'
     | '/sitemap.xml'
+    | '/modular/admin'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/clients'
     | '/contact'
-    | '/expertise'
     | '/portfolio'
     | '/process'
+    | '/services'
     | '/sitemap.xml'
+    | '/modular/admin'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/clients'
     | '/contact'
-    | '/expertise'
     | '/portfolio'
     | '/process'
+    | '/services'
     | '/sitemap.xml'
+    | '/modular/admin'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -128,10 +140,11 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ClientsRoute: typeof ClientsRoute
   ContactRoute: typeof ContactRoute
-  ExpertiseRoute: typeof ExpertiseRoute
   PortfolioRoute: typeof PortfolioRoute
   ProcessRoute: typeof ProcessRoute
+  ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ModularAdminRoute: typeof ModularAdminRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -164,13 +177,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/expertise': {
-      id: '/expertise'
-      path: '/expertise'
-      fullPath: '/expertise'
-      preLoaderRoute: typeof ExpertiseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/portfolio': {
       id: '/portfolio'
       path: '/portfolio'
@@ -185,11 +191,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modular/admin': {
+      id: '/modular/admin'
+      path: '/modular/admin'
+      fullPath: '/modular/admin'
+      preLoaderRoute: typeof ModularAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -200,10 +220,11 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ClientsRoute: ClientsRoute,
   ContactRoute: ContactRoute,
-  ExpertiseRoute: ExpertiseRoute,
   PortfolioRoute: PortfolioRoute,
   ProcessRoute: ProcessRoute,
+  ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ModularAdminRoute: ModularAdminRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

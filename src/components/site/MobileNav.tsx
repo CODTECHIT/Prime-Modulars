@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { Home, FolderOpen, Images, Phone, MessageSquare } from "lucide-react";
+import { Home, FolderOpen, Images, Phone, MessageSquare, Info } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { CONTACT } from "@/data/site";
 import { motion, AnimatePresence } from "motion/react";
 
 const ITEMS = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/expertise", label: "Services", icon: FolderOpen },
+  { href: "/about", label: "About", icon: Info },
+  { href: "/services", label: "Services", icon: FolderOpen },
   { href: "/portfolio", label: "Portfolio", icon: Images },
-  { href: "/clients", label: "Testimonials", icon: Phone },
 ];
 
 export function MobileNav() {
@@ -23,10 +23,7 @@ export function MobileNav() {
   }, []);
 
   return (
-    <nav
-      aria-label="Mobile navigation"
-      className="fixed inset-x-0 bottom-0 z-40 lg:hidden"
-    >
+    <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
       <AnimatePresence>
         {showOptions && (
           <>
@@ -119,22 +116,16 @@ export function MobileNav() {
   );
 }
 
-function NavItem({
-  href,
-  label,
-  icon: Icon,
-}: {
-  href: string;
-  label: string;
-  icon: typeof Home;
-}) {
+function NavItem({ href, label, icon: Icon }: { href: string; label: string; icon: typeof Home }) {
   return (
     <Link
       to={href}
       className="flex flex-col items-center gap-1 py-2 text-muted-foreground transition-colors duration-200 hover:text-primary"
     >
       <Icon className="size-5" strokeWidth={1.5} />
-      <span className="text-[0.55rem] font-semibold uppercase tracking-widest text-center">{label}</span>
+      <span className="text-[0.55rem] font-semibold uppercase tracking-widest text-center">
+        {label}
+      </span>
     </Link>
   );
 }

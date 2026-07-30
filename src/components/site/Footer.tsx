@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 
 const NAV = [
   { href: "/about", label: "About Us" },
-  { href: "/expertise", label: "Our Expertise" },
+  { href: "/services", label: "Services" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/process", label: "Our Process" },
   { href: "/clients", label: "Client Stories" },
@@ -15,7 +15,11 @@ const CONTACT_ITEMS = [
   { icon: Phone, label: CONTACT.phoneMain, href: `tel:${CONTACT.phoneMain}` },
   { icon: Phone, label: CONTACT.phoneAlt, href: `tel:${CONTACT.phoneAlt}` },
   { icon: Mail, label: CONTACT.email, href: `mailto:${CONTACT.email}` },
-  { icon: MessageSquare, label: `WhatsApp +${CONTACT.whatsapp}`, href: `https://wa.me/${CONTACT.whatsapp}` },
+  {
+    icon: MessageSquare,
+    label: `WhatsApp +${CONTACT.whatsapp}`,
+    href: `https://wa.me/${CONTACT.whatsapp}`,
+  },
   { icon: MapPin, label: CONTACT.address, href: "#", multiline: true },
 ];
 
@@ -32,11 +36,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-7xl gap-14 px-6 pt-16 pb-10 lg:grid-cols-12 lg:gap-8 lg:px-12">
         {/* Brand */}
         <div className="lg:col-span-4">
-          <Link
-            to="/"
-            className="flex items-center gap-3"
-            aria-label="Prime Modulars home"
-          >
+          <Link to="/" className="flex items-center gap-3" aria-label="Prime Modulars home">
             <img
               src="/logo.png"
               alt="Prime Modulars logo"
@@ -45,18 +45,14 @@ export function Footer() {
               className="size-20 object-contain drop-shadow-md"
             />
             <div>
-              <p className="font-display text-lg font-light text-foreground">
-                Prime Modulars
-              </p>
-              <p className="label-caps text-[0.6rem] text-primary">
-                Company · Est. 2004
-              </p>
+              <p className="font-display text-lg font-light text-foreground">Prime Modulars</p>
+              <p className="label-caps text-[0.6rem] text-primary">Company · Est. 2004</p>
             </div>
           </Link>
 
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-muted-foreground">
-            Premium custom modular interiors crafted in Tadepalli, serving Guntur,
-            Vijayawada, Mangalagiri and beyond since 2004.
+            Premium custom modular interiors crafted in Tadepalli, serving Guntur, Vijayawada,
+            Mangalagiri and beyond since 2004.
           </p>
 
           {/* Social / CTA */}
@@ -100,11 +96,14 @@ export function Footer() {
                   rel={c.href.startsWith("http") ? "noreferrer" : undefined}
                   className="group flex items-start gap-3 text-sm text-foreground/90 transition-colors hover:text-primary"
                 >
-                  <c.icon
-                    className="mt-0.5 size-3.5 shrink-0 text-primary"
-                    strokeWidth={1.5}
-                  />
-                  <span className={c.multiline ? "leading-snug text-muted-foreground group-hover:text-foreground/90" : ""}>
+                  <c.icon className="mt-0.5 size-3.5 shrink-0 text-primary" strokeWidth={1.5} />
+                  <span
+                    className={
+                      c.multiline
+                        ? "leading-snug text-muted-foreground group-hover:text-foreground/90"
+                        : ""
+                    }
+                  >
                     {c.label}
                   </span>
                 </a>
@@ -118,9 +117,7 @@ export function Footer() {
       <div className="border-t border-border/50">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 py-5 text-xs text-muted-foreground sm:flex-row lg:px-12">
           <p>© {new Date().getFullYear()} Prime Modulars Company. All rights reserved.</p>
-          <p>
-            Tadepalli · Guntur Dist. · Andhra Pradesh, India
-          </p>
+          <p>Tadepalli · Guntur Dist. · Andhra Pradesh, India</p>
         </div>
       </div>
     </footer>

@@ -1,0 +1,19 @@
+- generic [ref=f1e2]:
+  - complementary [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - generic [ref=f1e5]: Prime Admin
+      - button [ref=f1e6]
+    - navigation [ref=f1e10]:
+      - link "Dashboard" [ref=f1e11] [cursor=pointer]:
+        - /url: /modular/admin?view=dashboard
+      - link "Services" [ref=f1e20] [cursor=pointer]:
+        - /url: /modular/admin?view=services
+      - link "Gallery" [ref=f1e26] [cursor=pointer]:
+        - /url: /modular/admin?view=gallery
+    - button "Logout" [ref=f1e35]
+  - generic [ref=f1e40]:
+    - banner [ref=f1e41]:
+      - button [ref=f1e42]
+      - link "View Site →" [ref=f1e44] [cursor=pointer]:
+        - /url: /
+    - main [ref=f1e45]

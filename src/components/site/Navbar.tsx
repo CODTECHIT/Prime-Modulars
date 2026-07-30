@@ -5,18 +5,18 @@ import { CONTACT } from "@/data/site";
 import { Link } from "@tanstack/react-router";
 
 const LINKS = [
+  { href: "/", label: "Home" },
   { href: "/about", label: "About" },
-  { href: "/expertise", label: "Expertise" },
+  { href: "/services", label: "Services" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/process", label: "Process" },
   { href: "/clients", label: "Testimonials" },
-  { href: "/", label: "Home" },
 ];
 
 const MOBILE_LINKS = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
-  { href: "/expertise", label: "Expertise" },
+  { href: "/services", label: "Services" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/process", label: "Process" },
   { href: "/clients", label: "Testimonials" },
@@ -76,7 +76,11 @@ export function Navbar() {
                 solid ? "size-[5rem]" : "size-[9.5rem]"
               }`}
             >
-              <img src="/logo.png" alt="Prime Modulars logo" className="size-full object-contain drop-shadow-xl" />
+              <img
+                src="/logo.png"
+                alt="Prime Modulars logo"
+                className="size-full object-contain drop-shadow-xl"
+              />
             </span>
           </Link>
         </div>
@@ -100,24 +104,24 @@ export function Navbar() {
               >
                 {l.label}
               </Link>
-            )
+            ),
           )}
         </div>
       </nav>
 
       {/* Mobile */}
       <nav className="flex items-center justify-between px-5 py-3 lg:hidden">
-        <Link
-          to="/"
-          aria-label="Prime Modulars home"
-          className="flex items-center gap-3 group"
-        >
+        <Link to="/" aria-label="Prime Modulars home" className="flex items-center gap-3 group">
           <span
             className={`grid place-items-center transition-all duration-500 shrink-0 group-hover:scale-105 ${
               solid ? "size-10" : "size-12"
             }`}
           >
-            <img src="/logo.png" alt="Prime Modulars logo" className="size-full object-contain drop-shadow-md" />
+            <img
+              src="/logo.png"
+              alt="Prime Modulars logo"
+              className="size-full object-contain drop-shadow-md"
+            />
           </span>
           <div className="flex flex-col justify-center border-l border-[#B48E4B]/40 pl-3 py-0.5">
             <span className="font-serif text-[0.85rem] leading-none tracking-[0.15em] text-[#15110E] uppercase flex items-baseline">

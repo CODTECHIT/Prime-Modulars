@@ -51,10 +51,7 @@ export function Contact() {
   };
 
   return (
-    <section
-      id="contact"
-      className="relative overflow-hidden bg-card py-24 sm:py-36"
-    >
+    <section id="contact" className="relative overflow-hidden bg-card py-24 sm:py-36">
       {/* Dividers */}
       <div
         aria-hidden
@@ -68,8 +65,7 @@ export function Contact() {
           <h2 className="mt-5 text-4xl font-light leading-tight text-foreground sm:text-5xl lg:text-6xl">
             Let's design
             <br />
-            your{" "}
-            <span className="italic text-primary">dream space.</span>
+            your <span className="italic text-primary">dream space.</span>
           </h2>
           <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
             Visit our studio, call us, or send a message. We respond within 24 hours and offer a
@@ -87,12 +83,8 @@ export function Contact() {
               </div>
               <div>
                 <p className="label-caps text-muted-foreground">Call Us</p>
-                <p className="mt-1 font-sans text-base text-foreground">
-                  {CONTACT.phoneMain}
-                </p>
-                <p className="mt-0.5 text-sm text-muted-foreground">
-                  Alt: {CONTACT.phoneAlt}
-                </p>
+                <p className="mt-1 font-sans text-base text-foreground">{CONTACT.phoneMain}</p>
+                <p className="mt-0.5 text-sm text-muted-foreground">Alt: {CONTACT.phoneAlt}</p>
               </div>
               <ChevronRight className="ml-auto size-4 text-muted-foreground transition-all group-hover:text-primary group-hover:translate-x-1" />
             </a>
@@ -137,9 +129,7 @@ export function Contact() {
               </div>
               <div>
                 <p className="label-caps text-muted-foreground">Studio Address</p>
-                <p className="mt-1 text-sm leading-relaxed text-foreground">
-                  {CONTACT.address}
-                </p>
+                <p className="mt-1 text-sm leading-relaxed text-foreground">{CONTACT.address}</p>
               </div>
             </div>
           </div>
@@ -166,7 +156,7 @@ export function Contact() {
               Send an Enquiry
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Fill the form   we'll open WhatsApp with your message pre-filled.
+              Fill the form we'll open WhatsApp with your message pre-filled.
             </p>
 
             <AnimatePresence mode="wait">
@@ -231,7 +221,10 @@ export function Contact() {
 
                   {/* Service */}
                   <div>
-                    <label htmlFor="service" className="label-caps mb-2 block text-muted-foreground">
+                    <label
+                      htmlFor="service"
+                      className="label-caps mb-2 block text-muted-foreground"
+                    >
                       Service Interested In *
                     </label>
                     <select
@@ -255,7 +248,10 @@ export function Contact() {
 
                   {/* Message */}
                   <div>
-                    <label htmlFor="message" className="label-caps mb-2 block text-muted-foreground">
+                    <label
+                      htmlFor="message"
+                      className="label-caps mb-2 block text-muted-foreground"
+                    >
                       Message
                     </label>
                     <textarea

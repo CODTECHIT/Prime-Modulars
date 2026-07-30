@@ -1,0 +1,343 @@
+import { useEffect, useState, useCallback, useRef } from "react";
+import {
+  getGalleryImages,
+  uploadGalleryImage,
+  deleteGalleryImage,
+  getGalleryCategories,
+  createGalleryCategory,
+  deleteGalleryCategory,
+  type GalleryImage,
+  type GalleryCategory,
+} from "@/lib/server/gallery";
+import { TOKEN_KEY } from "@/lib/constants";
+import { clearCache } from "@/lib/cache";
+import { Upload, Trash2, X, Loader2, Image, FolderPlus } from "lucide-react";
+
+function getToken(): string {
+  return localStorage.getItem(TOKEN_KEY) ?? "";
+}
+
+export function AdminGallery() {
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [categories, setCategories] = useState<GalleryCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCat, setSelectedCat] = useState<string>("All");
+  const [showUpload, setShowUpload] = useState(false);
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
+  const [newCatDesc, setNewCatDesc] = useState("");
+  const [newCaption, setNewCaption] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const loadData = useCallback(async () => {
+    try {
+      const [imgs, cats] = await Promise.all([getGalleryImages({}), getGalleryCategories()]);
+      setImages(imgs);
+      setCategories(cats);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const allCategories = [
+    "All",
+    ...categories.map((c) => c.name),
+    "Kitchens",
+    "Living Rooms",
+    "Wardrobes",
+    "Bedrooms",
+    "Ceilings",
+    "Pooja Units",
+    "TV Units",
+    "Entryway",
+    "Dining",
+  ].filter((v, i, a) => a.indexOf(v) === i);
+
+  const filtered =
+    selectedCat === "All" ? images : images.filter((img) => img.category === selectedCat);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSelectedFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile || !newCaption || selectedCat === "All") return;
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(selectedFile);
+      });
+
+      await uploadGalleryImage({
+        data: {
+          token: getToken(),
+          base64,
+          category: selectedCat,
+          caption: newCaption,
+        },
+      });
+
+      clearCache("gallery_images");
+      setShowUpload(false);
+      setSelectedFile(null);
+      setPreview(null);
+      setNewCaption("");
+      await loadData();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteImage = async (id: string) => {
+    if (!confirm("Delete this image?")) return;
+    setDeleting(id);
+    try {
+      await deleteGalleryImage({ data: { token: getToken(), id } });
+      clearCache("gallery_images");
+      await loadData();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handleCreateCategory = async () => {
+    if (!newCatName) return;
+    try {
+      await createGalleryCategory({
+        data: { token: getToken(), name: newCatName, description: newCatDesc },
+      });
+      setShowNewCategory(false);
+      setNewCatName("");
+      setNewCatDesc("");
+      await loadData();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    if (!confirm("Delete this category and all its images?")) return;
+    try {
+      await deleteGalleryCategory({ data: { token: getToken(), id } });
+      await loadData();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="size-6 animate-spin text-[var(--gold-muted)]" />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h1 className="font-display text-3xl font-semibold text-[var(--espresso-deep)]">
+            Gallery
+          </h1>
+          <p className="mt-1 text-sm text-gray-500">Manage category-based gallery images</p>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowNewCategory(true)}
+            className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
+          >
+            <FolderPlus className="size-3.5" />
+            New Category
+          </button>
+          <button onClick={() => setShowUpload(true)} className="btn-gold text-xs">
+            <Upload className="size-3.5" />
+            Upload Image
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-6 flex flex-wrap gap-2">
+        {allCategories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCat(cat)}
+            className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all ${
+              selectedCat === cat
+                ? "border-[var(--gold-muted)] bg-[var(--gold-muted)] text-white"
+                : "border-gray-200 text-gray-500 hover:border-[var(--gold-soft)] hover:text-[var(--gold-muted)]"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {showUpload && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-[var(--espresso-deep)]">Upload Image</h2>
+              <button onClick={() => setShowUpload(false)}>
+                <X className="size-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div
+                onClick={() => fileRef.current?.click()}
+                className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 p-8 transition-colors hover:border-[var(--gold-soft)]"
+              >
+                {preview ? (
+                  <img src={preview} alt="Preview" className="max-h-48 rounded-lg object-contain" />
+                ) : (
+                  <>
+                    <Image className="mb-2 size-8 text-gray-300" />
+                    <p className="text-xs text-gray-400">Click to select an image</p>
+                  </>
+                )}
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
+                <select
+                  value={selectedCat === "All" ? "Kitchens" : selectedCat}
+                  onChange={(e) => setSelectedCat(e.target.value)}
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[var(--gold-muted)]"
+                >
+                  {allCategories
+                    .filter((c) => c !== "All")
+                    .map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Caption</label>
+                <input
+                  type="text"
+                  value={newCaption}
+                  onChange={(e) => setNewCaption(e.target.value)}
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[var(--gold-muted)]"
+                  placeholder="e.g. Contemporary Kitchen"
+                />
+              </div>
+              <button
+                onClick={handleUpload}
+                disabled={uploading || !selectedFile || !newCaption}
+                className="btn-gold w-full justify-center text-xs"
+              >
+                {uploading ? <Loader2 className="size-4 animate-spin" /> : "Upload to Cloudinary"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showNewCategory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-[var(--espresso-deep)]">New Category</h2>
+              <button onClick={() => setShowNewCategory(false)}>
+                <X className="size-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Name</label>
+                <input
+                  type="text"
+                  value={newCatName}
+                  onChange={(e) => setNewCatName(e.target.value)}
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[var(--gold-muted)]"
+                  placeholder="e.g. Bathrooms"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                <input
+                  type="text"
+                  value={newCatDesc}
+                  onChange={(e) => setNewCatDesc(e.target.value)}
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[var(--gold-muted)]"
+                  placeholder="Optional description"
+                />
+              </div>
+              <button
+                onClick={handleCreateCategory}
+                className="btn-gold w-full justify-center text-xs"
+              >
+                Create Category
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
+        <div className="py-12 text-center text-sm text-gray-400">
+          No images in this category. Upload some images.
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {filtered.map((img) => (
+            <div
+              key={img._id}
+              className="group relative aspect-[4/3] overflow-hidden rounded-lg border border-gray-200"
+            >
+              <img
+                src={img.src}
+                alt={img.caption}
+                className="size-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 flex flex-col justify-between bg-gradient-to-t from-black/70 via-transparent to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100">
+                <button
+                  onClick={() => handleDeleteImage(img._id!)}
+                  disabled={deleting === img._id}
+                  className="self-end rounded-lg bg-white/20 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-red-500/50"
+                >
+                  {deleting === img._id ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="size-3.5" />
+                  )}
+                </button>
+                <p className="text-xs text-white drop-shadow-lg">{img.caption}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

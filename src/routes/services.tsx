@@ -2,11 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Services } from "@/components/site/Services";
 import { useSmoothScroll } from "@/components/site/useSmoothScroll";
 
-export const Route = createFileRoute("/expertise")({
-  component: ExpertisePage,
+export const Route = createFileRoute("/services")({
+  component: ServicesPage,
 });
 
-function ExpertisePage() {
+function ServicesPage() {
   useSmoothScroll();
   return (
     <div className="pt-24">

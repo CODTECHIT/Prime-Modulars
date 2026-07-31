@@ -30,8 +30,11 @@ export function AdminGallery() {
   const [newCaption, setNewCaption] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [beforeFile, setBeforeFile] = useState<File | null>(null);
+  const [beforePreview, setBeforePreview] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const beforeFileRef = useRef<HTMLInputElement>(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -75,6 +78,15 @@ export function AdminGallery() {
     reader.readAsDataURL(file);
   };
 
+  const handleBeforeFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBeforeFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setBeforePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
   const handleUpload = async () => {
     if (!selectedFile || !newCaption || selectedCat === "All") return;
     setUploading(true);
@@ -86,10 +98,21 @@ export function AdminGallery() {
         reader.readAsDataURL(selectedFile);
       });
 
+      let beforeBase64: string | undefined;
+      if (beforeFile) {
+        const beforeReader = new FileReader();
+        beforeBase64 = await new Promise<string>((resolve, reject) => {
+          beforeReader.onload = () => resolve(beforeReader.result as string);
+          beforeReader.onerror = reject;
+          beforeReader.readAsDataURL(beforeFile);
+        });
+      }
+
       await uploadGalleryImage({
         data: {
           token: getToken(),
           base64,
+          beforeBase64,
           category: selectedCat,
           caption: newCaption,
         },
@@ -99,6 +122,8 @@ export function AdminGallery() {
       setShowUpload(false);
       setSelectedFile(null);
       setPreview(null);
+      setBeforeFile(null);
+      setBeforePreview(null);
       setNewCaption("");
       await loadData();
     } catch (e) {
@@ -205,25 +230,47 @@ export function AdminGallery() {
               </button>
             </div>
             <div className="space-y-4">
-              <div
-                onClick={() => fileRef.current?.click()}
-                className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 p-8 transition-colors hover:border-[var(--gold-soft)]"
-              >
-                {preview ? (
-                  <img src={preview} alt="Preview" className="max-h-48 rounded-lg object-contain" />
-                ) : (
-                  <>
-                    <Image className="mb-2 size-8 text-gray-300" />
-                    <p className="text-xs text-gray-400">Click to select an image</p>
-                  </>
-                )}
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div
+                  onClick={() => beforeFileRef.current?.click()}
+                  className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 p-4 transition-colors hover:border-[var(--gold-soft)] text-center h-32"
+                >
+                  {beforePreview ? (
+                    <img src={beforePreview} alt="Before Preview" className="h-full w-full rounded-lg object-contain" />
+                  ) : (
+                    <>
+                      <Image className="mb-2 size-6 text-gray-300" />
+                      <p className="text-xs text-gray-400">Before Image (Optional)</p>
+                    </>
+                  )}
+                  <input
+                    ref={beforeFileRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBeforeFileSelect}
+                    className="hidden"
+                  />
+                </div>
+                <div
+                  onClick={() => fileRef.current?.click()}
+                  className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 p-4 transition-colors hover:border-[var(--gold-soft)] text-center h-32"
+                >
+                  {preview ? (
+                    <img src={preview} alt="Preview" className="h-full w-full rounded-lg object-contain" />
+                  ) : (
+                    <>
+                      <Image className="mb-2 size-6 text-gray-300" />
+                      <p className="text-xs text-gray-400">Main/After Image (Required)</p>
+                    </>
+                  )}
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>

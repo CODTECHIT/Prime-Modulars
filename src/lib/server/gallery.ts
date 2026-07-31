@@ -8,6 +8,8 @@ export interface GalleryImage {
   _id?: string;
   src: string;
   publicId: string;
+  beforeSrc?: string;
+  beforePublicId?: string;
   category: string;
   caption: string;
   serviceId?: string;
@@ -26,7 +28,7 @@ export interface GalleryCategory {
 const IMAGES_COLLECTION = "gallery_images";
 const CATEGORIES_COLLECTION = "gallery_categories";
 const ALLOWED_IMAGE_FIELDS = [
-  "src", "publicId", "category", "caption", "serviceId", "order",
+  "src", "publicId", "beforeSrc", "beforePublicId", "category", "caption", "serviceId", "order",
 ];
 const ALLOWED_CATEGORY_FIELDS = ["name", "description"];
 
@@ -131,6 +133,7 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
     (data: {
       token: string;
       base64: string;
+      beforeBase64?: string;
       category: string;
       caption: string;
       serviceId?: string;
@@ -154,12 +157,22 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
       data.base64,
       `gallery/${data.category}`,
     );
+    
+    let beforeUploadResult = null;
+    if (data.beforeBase64) {
+      beforeUploadResult = await uploadToCloudinary(
+        data.beforeBase64,
+        `gallery/${data.category}/before`,
+      );
+    }
 
     const db = await getDb();
     const now = new Date().toISOString();
     const doc: Omit<GalleryImage, "_id"> = {
       src: uploadResult.secure_url,
       publicId: uploadResult.public_id,
+      beforeSrc: beforeUploadResult?.secure_url,
+      beforePublicId: beforeUploadResult?.public_id,
       category: data.category,
       caption: data.caption,
       serviceId: data.serviceId,
@@ -197,6 +210,9 @@ export const deleteGalleryImage = createServerFn({ method: "POST" })
       const { deleteFromCloudinary } = await import("../cloudinary");
       try {
         await deleteFromCloudinary(image.publicId);
+        if (image.beforePublicId) {
+           await deleteFromCloudinary(image.beforePublicId);
+        }
       } catch {
         // Proceed even if Cloudinary delete fails
       }

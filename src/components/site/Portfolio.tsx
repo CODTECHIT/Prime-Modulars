@@ -8,6 +8,70 @@ import { withCache } from "@/lib/cache";
 
 const ALL_CATS = GALLERY_CATEGORIES;
 
+function BeforeAfterImage({
+  beforeSrc,
+  afterSrc,
+  alt,
+  className = "",
+  imgClass = "object-cover",
+  onLoad,
+}: {
+  beforeSrc: string;
+  afterSrc: string;
+  alt: string;
+  className?: string;
+  imgClass?: string;
+  onLoad?: () => void;
+}) {
+  const [sliderPosition, setSliderPosition] = useState(50);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const handleLoad = () => {
+    if (!isLoaded) {
+      setIsLoaded(true);
+      onLoad?.();
+    }
+  };
+
+  return (
+    <div className={`relative ${className}`}>
+      <img src={afterSrc} alt="" className={`block w-full h-full opacity-0 pointer-events-none ${imgClass}`} onLoad={handleLoad} />
+      <img
+        src={afterSrc}
+        alt={`${alt} After`}
+        className={`absolute inset-0 w-full h-full ${imgClass}`}
+      />
+      <img
+        src={beforeSrc}
+        alt={`${alt} Before`}
+        className={`absolute inset-0 w-full h-full ${imgClass}`}
+        style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
+      />
+      <div 
+        className="absolute top-0 bottom-0 w-0.5 md:w-1 bg-white pointer-events-none z-10 shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+        style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
+      >
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-6 md:size-8 bg-white rounded-full shadow-lg grid place-items-center">
+          <ChevronLeft className="size-3 md:size-4 absolute left-0.5 md:left-1 text-gray-500" />
+          <ChevronRight className="size-3 md:size-4 absolute right-0.5 md:right-1 text-gray-500" />
+        </div>
+      </div>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        value={sliderPosition}
+        onChange={(e) => setSliderPosition(Number(e.target.value))}
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
+      />
+      <div className="absolute top-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider pointer-events-none z-10">Before</div>
+      <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider pointer-events-none z-10">After</div>
+    </div>
+  );
+}
+
 function GalleryCard({
   item,
   index,
@@ -31,13 +95,23 @@ function GalleryCard({
             <Loader2 className="size-6 animate-spin text-[var(--primary)]" />
           </div>
         )}
-        <img
-          src={item.src}
-          alt={item.caption}
-          loading="lazy"
-          onLoad={() => setLoaded(true)}
-          className={`size-full object-cover transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110 ${loaded ? "opacity-100" : "opacity-0"}`}
-        />
+        {item.beforeSrc ? (
+          <BeforeAfterImage
+            beforeSrc={item.beforeSrc}
+            afterSrc={item.src}
+            alt={item.caption}
+            onLoad={() => setLoaded(true)}
+            className={`size-full transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110 ${loaded ? "opacity-100" : "opacity-0"}`}
+          />
+        ) : (
+          <img
+            src={item.src}
+            alt={item.caption}
+            loading="lazy"
+            onLoad={() => setLoaded(true)}
+            className={`size-full object-cover transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110 ${loaded ? "opacity-100" : "opacity-0"}`}
+          />
+        )}
         <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-[oklch(0.04_0.005_60/0.85)] via-[oklch(0.04_0.005_60/0.2)] to-transparent opacity-0 transition-opacity duration-400 group-hover:opacity-100 group-focus-visible:opacity-100">
           <div className="flex items-end justify-between p-4">
             <p className="text-left text-xs leading-snug text-foreground font-medium">
@@ -119,12 +193,23 @@ function Lightbox({
                   <Loader2 className="size-8 animate-spin text-[var(--primary)]" />
                 </div>
               )}
-              <img
-                src={item.src}
-                alt={item.caption}
-                onLoad={() => setLoaded(true)}
-                className={`block max-h-[75svh] max-w-[88vw] object-contain ${loaded ? "opacity-100" : "opacity-0"}`}
-              />
+              {item.beforeSrc ? (
+                <BeforeAfterImage
+                  beforeSrc={item.beforeSrc}
+                  afterSrc={item.src}
+                  alt={item.caption}
+                  onLoad={() => setLoaded(true)}
+                  className={`block max-h-[75svh] max-w-[88vw] h-[75svh] md:h-[80svh] aspect-video md:aspect-[4/3] ${loaded ? "opacity-100" : "opacity-0"}`}
+                  imgClass="object-cover md:object-contain"
+                />
+              ) : (
+                <img
+                  src={item.src}
+                  alt={item.caption}
+                  onLoad={() => setLoaded(true)}
+                  className={`block max-h-[75svh] max-w-[88vw] object-contain ${loaded ? "opacity-100" : "opacity-0"}`}
+                />
+              )}
 
               {!showContact && loaded && (
                  <motion.div
@@ -232,6 +317,7 @@ function useGalleryItems() {
           setItems(
             imgs.map((img) => ({
               src: img.src,
+              beforeSrc: img.beforeSrc,
               category: img.category as Exclude<GalleryCategory, "All">,
               caption: img.caption,
             })),

@@ -25,6 +25,7 @@ export type GalleryCategory = (typeof GALLERY_CATEGORIES)[number];
 
 export type GalleryItem = {
   src: string;
+  beforeSrc?: string;
   category: Exclude<GalleryCategory, "All">;
   caption: string;
 };

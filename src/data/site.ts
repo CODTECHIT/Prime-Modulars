@@ -24,6 +24,7 @@ export const GALLERY_CATEGORIES = [
 export type GalleryCategory = (typeof GALLERY_CATEGORIES)[number];
 
 export type GalleryItem = {
+  type?: "image" | "video";
   src: string;
   beforeSrc?: string;
   category: Exclude<GalleryCategory, "All">;

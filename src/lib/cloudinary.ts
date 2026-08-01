@@ -20,12 +20,14 @@ function initCloudinary() {
 export async function uploadToCloudinary(
   base64Image: string,
   folder: string,
+  options?: { resourceType?: "image" | "video" },
 ): Promise<CloudinaryUploadResult> {
   initCloudinary();
   const res = await cloudinary.uploader.upload(base64Image, {
     folder: `prime-modulars/${folder}`,
+    resource_type: options?.resourceType ?? "image",
   });
-  
+
   return {
     public_id: res.public_id,
     secure_url: res.secure_url,

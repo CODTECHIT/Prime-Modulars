@@ -2,7 +2,13 @@ import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, ZoomIn, ChevronLeft, ChevronRight, Loader2, Phone, MessageSquare } from "lucide-react";
 import { Reveal, SectionLabel } from "./Reveal";
-import { GALLERY, GALLERY_CATEGORIES, CONTACT, type GalleryCategory, type GalleryItem } from "@/data/site";
+import {
+  GALLERY,
+  GALLERY_CATEGORIES,
+  CONTACT,
+  type GalleryCategory,
+  type GalleryItem,
+} from "@/data/site";
 import { getGalleryImages, type GalleryImage } from "@/lib/server/gallery";
 import { withCache } from "@/lib/cache";
 
@@ -35,7 +41,12 @@ function BeforeAfterImage({
 
   return (
     <div className={`relative ${className}`}>
-      <img src={afterSrc} alt="" className={`block w-full h-full opacity-0 pointer-events-none ${imgClass}`} onLoad={handleLoad} />
+      <img
+        src={afterSrc}
+        alt=""
+        className={`block w-full h-full opacity-0 pointer-events-none ${imgClass}`}
+        onLoad={handleLoad}
+      />
       <img
         src={afterSrc}
         alt={`${alt} After`}
@@ -47,9 +58,9 @@ function BeforeAfterImage({
         className={`absolute inset-0 w-full h-full ${imgClass}`}
         style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
       />
-      <div 
+      <div
         className="absolute top-0 bottom-0 w-0.5 md:w-1 bg-white pointer-events-none z-10 shadow-[0_0_10px_rgba(0,0,0,0.5)]"
-        style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
+        style={{ left: `${sliderPosition}%`, transform: "translateX(-50%)" }}
       >
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-6 md:size-8 bg-white rounded-full shadow-lg grid place-items-center">
           <ChevronLeft className="size-3 md:size-4 absolute left-0.5 md:left-1 text-gray-500" />
@@ -66,8 +77,12 @@ function BeforeAfterImage({
         onClick={(e) => e.stopPropagation()}
         className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
       />
-      <div className="absolute top-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider pointer-events-none z-10">Before</div>
-      <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider pointer-events-none z-10">After</div>
+      <div className="absolute top-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider pointer-events-none z-10">
+        Before
+      </div>
+      <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider pointer-events-none z-10">
+        After
+      </div>
     </div>
   );
 }
@@ -95,7 +110,18 @@ function GalleryCard({
             <Loader2 className="size-6 animate-spin text-[var(--primary)]" />
           </div>
         )}
-        {item.beforeSrc ? (
+        {item.type === "video" ? (
+          <video
+            src={item.src}
+            muted
+            loop
+            autoPlay
+            playsInline
+            preload="metadata"
+            onLoadedData={() => setLoaded(true)}
+            className={`size-full object-cover transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110 ${loaded ? "opacity-100" : "opacity-0"}`}
+          />
+        ) : item.beforeSrc ? (
           <BeforeAfterImage
             beforeSrc={item.beforeSrc}
             afterSrc={item.src}
@@ -193,7 +219,18 @@ function Lightbox({
                   <Loader2 className="size-8 animate-spin text-[var(--primary)]" />
                 </div>
               )}
-              {item.beforeSrc ? (
+              {item.type === "video" ? (
+                <video
+                  src={item.src}
+                  controls
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  onLoadedData={() => setLoaded(true)}
+                  className={`block max-h-[75svh] max-w-[88vw] ${loaded ? "opacity-100" : "opacity-0"}`}
+                />
+              ) : item.beforeSrc ? (
                 <BeforeAfterImage
                   beforeSrc={item.beforeSrc}
                   afterSrc={item.src}
@@ -212,17 +249,17 @@ function Lightbox({
               )}
 
               {!showContact && loaded && (
-                 <motion.div
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   transition={{ delay: 0.5 }}
-                   className="absolute inset-x-0 bottom-6 flex justify-center pointer-events-none"
-                 >
-                    <span className="bg-black/70 text-white text-xs px-4 py-2 rounded-full backdrop-blur-md flex items-center gap-2">
-                       <span className="animate-pulse block size-1.5 rounded-full bg-primary" />
-                       Tap image to explore
-                    </span>
-                 </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="absolute inset-x-0 bottom-6 flex justify-center pointer-events-none"
+                >
+                  <span className="bg-black/70 text-white text-xs px-4 py-2 rounded-full backdrop-blur-md flex items-center gap-2">
+                    <span className="animate-pulse block size-1.5 rounded-full bg-primary" />
+                    Tap image to explore
+                  </span>
+                </motion.div>
               )}
 
               <AnimatePresence>
@@ -232,7 +269,10 @@ function Lightbox({
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center gap-5 p-6"
-                    onClick={(e) => { e.stopPropagation(); setShowContact(false); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowContact(false);
+                    }}
                   >
                     <h3 className="text-white text-xl sm:text-2xl font-display mb-1 text-center">
                       Interested in this design?
@@ -284,14 +324,20 @@ function Lightbox({
       {items.length > 1 && (
         <>
           <button
-            onClick={(e) => { e.stopPropagation(); prev(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              prev();
+            }}
             aria-label="Previous image"
             className="absolute left-4 top-1/2 z-[110] -translate-y-1/2 grid size-10 sm:size-12 place-items-center rounded-full border border-primary/40 bg-[var(--card)] text-foreground/90 transition-all hover:border-primary hover:text-primary hover:scale-110"
           >
             <ChevronLeft className="size-5" />
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); next(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              next();
+            }}
             aria-label="Next image"
             className="absolute right-4 top-1/2 z-[110] -translate-y-1/2 grid size-10 sm:size-12 place-items-center rounded-full border border-primary/40 bg-[var(--card)] text-foreground/90 transition-all hover:border-primary hover:text-primary hover:scale-110"
           >
@@ -316,6 +362,7 @@ function useGalleryItems() {
         if (imgs.length > 0) {
           setItems(
             imgs.map((img) => ({
+              type: img.type ?? "image",
               src: img.src,
               beforeSrc: img.beforeSrc,
               category: img.category as Exclude<GalleryCategory, "All">,
@@ -332,7 +379,7 @@ function useGalleryItems() {
 
 export function Portfolio() {
   const { items: galleryItems } = useGalleryItems();
-  const dynamicCats = ["All", ...Array.from(new Set(galleryItems.map(item => item.category)))];
+  const dynamicCats = ["All", ...Array.from(new Set(galleryItems.map((item) => item.category)))];
 
   const [cat, setCat] = useState<GalleryCategory>(() => {
     if (typeof window !== "undefined" && window.location.hash) {
@@ -347,8 +394,7 @@ export function Portfolio() {
   const filtered = cat === "All" ? galleryItems : galleryItems.filter((g) => g.category === cat);
   const shown = filtered.slice(0, visible);
 
-  const openLightbox = (index: number) =>
-    setLightbox({ items: filtered, index });
+  const openLightbox = (index: number) => setLightbox({ items: filtered, index });
 
   const handleCatChange = (c: GalleryCategory) => {
     setCat(c);
@@ -369,10 +415,7 @@ export function Portfolio() {
   }, []);
 
   return (
-    <section
-      id="portfolio"
-      className="relative overflow-hidden bg-background py-24 sm:py-36"
-    >
+    <section id="portfolio" className="relative overflow-hidden bg-background py-24 sm:py-36">
       <div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-px w-3/4 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent"
@@ -390,7 +433,7 @@ export function Portfolio() {
 
         <Reveal delay={0.1}>
           <div className="mt-10 flex flex-wrap gap-2">
-            {["All", ...Array.from(new Set(galleryItems.map(item => item.category)))].map((c) => (
+            {["All", ...Array.from(new Set(galleryItems.map((item) => item.category)))].map((c) => (
               <button
                 key={c}
                 onClick={() => handleCatChange(c as GalleryCategory)}
@@ -420,10 +463,7 @@ export function Portfolio() {
         {visible < filtered.length && (
           <Reveal>
             <div className="mt-12 flex justify-center">
-              <button
-                onClick={() => setVisible((v) => v + PAGE_SIZE)}
-                className="btn-outline"
-              >
+              <button onClick={() => setVisible((v) => v + PAGE_SIZE)} className="btn-outline">
                 Load More ({filtered.length - visible} remaining)
               </button>
             </div>

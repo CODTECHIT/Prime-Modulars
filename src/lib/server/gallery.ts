@@ -6,6 +6,7 @@ import { checkRateLimit, sanitizeObject } from "../security";
 
 export interface GalleryImage {
   _id?: string;
+  type: "image" | "video";
   src: string;
   publicId: string;
   beforeSrc?: string;
@@ -28,7 +29,15 @@ export interface GalleryCategory {
 const IMAGES_COLLECTION = "gallery_images";
 const CATEGORIES_COLLECTION = "gallery_categories";
 const ALLOWED_IMAGE_FIELDS = [
-  "src", "publicId", "beforeSrc", "beforePublicId", "category", "caption", "serviceId", "order",
+  "type",
+  "src",
+  "publicId",
+  "beforeSrc",
+  "beforePublicId",
+  "category",
+  "caption",
+  "serviceId",
+  "order",
 ];
 const ALLOWED_CATEGORY_FIELDS = ["name", "description"];
 
@@ -46,11 +55,7 @@ export const getGalleryImages = createServerFn({ method: "GET" })
     if (data?.category) filter.category = data.category;
     if (data?.serviceId) filter.serviceId = data.serviceId;
 
-    const images = await db
-      .collection(IMAGES_COLLECTION)
-      .find(filter)
-      .sort({ order: 1 })
-      .toArray();
+    const images = await db.collection(IMAGES_COLLECTION).find(filter).sort({ order: 1 }).toArray();
 
     return images.map((img) => ({
       ...img,
@@ -58,25 +63,18 @@ export const getGalleryImages = createServerFn({ method: "GET" })
     })) as GalleryImage[];
   });
 
-export const getGalleryCategories = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const db = await getDb();
-    const categories = await db
-      .collection(CATEGORIES_COLLECTION)
-      .find()
-      .sort({ name: 1 })
-      .toArray();
+export const getGalleryCategories = createServerFn({ method: "GET" }).handler(async () => {
+  const db = await getDb();
+  const categories = await db.collection(CATEGORIES_COLLECTION).find().sort({ name: 1 }).toArray();
 
-    return categories.map((cat) => ({
-      ...cat,
-      _id: cat._id.toString(),
-    })) as GalleryCategory[];
-  });
+  return categories.map((cat) => ({
+    ...cat,
+    _id: cat._id.toString(),
+  })) as GalleryCategory[];
+});
 
 export const createGalleryCategory = createServerFn({ method: "POST" })
-  .validator(
-    (data: { token: string; name: string; description: string }) => data,
-  )
+  .validator((data: { token: string; name: string; description: string }) => data)
   .handler(async ({ data }) => {
     requireAuth(data.token);
 
@@ -118,12 +116,8 @@ export const deleteGalleryCategory = createServerFn({ method: "POST" })
     if (!rateCheck.allowed) throw new Error("Rate limit exceeded");
 
     const db = await getDb();
-    await db
-      .collection(CATEGORIES_COLLECTION)
-      .deleteOne({ _id: new ObjectId(data.id) });
-    await db
-      .collection(IMAGES_COLLECTION)
-      .deleteMany({ category: data.id });
+    await db.collection(CATEGORIES_COLLECTION).deleteOne({ _id: new ObjectId(data.id) });
+    await db.collection(IMAGES_COLLECTION).deleteMany({ category: data.id });
 
     return { success: true };
   });
@@ -132,6 +126,7 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
   .validator(
     (data: {
       token: string;
+      type?: "image" | "video";
       base64: string;
       beforeBase64?: string;
       category: string;
@@ -148,18 +143,25 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
     });
     if (!rateCheck.allowed) throw new Error("Upload rate limit exceeded");
 
-    if (data.base64.length > 10 * 1024 * 1024) {
-      throw new Error("File too large. Maximum size is 10MB.");
+    const type = data.type ?? "image";
+    const maxBytes = type === "video" ? 150 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (data.base64.length > maxBytes) {
+      throw new Error(
+        type === "video"
+          ? "Video too large. Maximum size is 150MB."
+          : "File too large. Maximum size is 10MB.",
+      );
     }
 
     const { uploadToCloudinary } = await import("../cloudinary");
     const uploadResult = await uploadToCloudinary(
       data.base64,
-      `gallery/${data.category}`,
+      `gallery/${data.category}/${type === "video" ? "videos" : "images"}`,
+      { resourceType: type },
     );
-    
+
     let beforeUploadResult = null;
-    if (data.beforeBase64) {
+    if (type === "image" && data.beforeBase64) {
       beforeUploadResult = await uploadToCloudinary(
         data.beforeBase64,
         `gallery/${data.category}/before`,
@@ -169,6 +171,7 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
     const db = await getDb();
     const now = new Date().toISOString();
     const doc: Omit<GalleryImage, "_id"> = {
+      type,
       src: uploadResult.secure_url,
       publicId: uploadResult.public_id,
       beforeSrc: beforeUploadResult?.secure_url,
@@ -182,11 +185,87 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
 
     const result = await db.collection(IMAGES_COLLECTION).insertOne(doc);
 
-    await db.collection(CATEGORIES_COLLECTION).updateOne(
-      { name: data.category },
-      { $inc: { imageCount: 1 } },
-      { upsert: true },
+    await db
+      .collection(CATEGORIES_COLLECTION)
+      .updateOne({ name: data.category }, { $inc: { imageCount: 1 } }, { upsert: true });
+
+    return { ...doc, _id: result.insertedId.toString() } as GalleryImage;
+  });
+
+export const getGalleryUploadConfig = createServerFn({ method: "POST" })
+  .validator((data: { token: string; type: "image" | "video"; category: string }) => data)
+  .handler(async ({ data }) => {
+    requireAuth(data.token);
+
+    const rateCheck = checkRateLimit("upload:config", {
+      windowMs: 60 * 1000,
+      maxRequests: 60,
+    });
+    if (!rateCheck.allowed) throw new Error("Rate limit exceeded");
+
+    const { v2: cloudinary } = await import("cloudinary");
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+
+    const timestamp = Math.round(Date.now() / 1000);
+    const folder = `prime-modulars/gallery/${data.category}/${
+      data.type === "video" ? "videos" : "images"
+    }`;
+    const paramsToSign = { timestamp, folder };
+    const signature = cloudinary.utils.api_sign_request(
+      paramsToSign,
+      process.env.CLOUDINARY_API_SECRET ?? "",
     );
+
+    return {
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME ?? "",
+      apiKey: process.env.CLOUDINARY_API_KEY ?? "",
+      signature,
+      timestamp: String(timestamp),
+      folder,
+      resourceType: data.type,
+    };
+  });
+
+export const saveGalleryVideo = createServerFn({ method: "POST" })
+  .validator(
+    (data: {
+      token: string;
+      publicId: string;
+      secureUrl: string;
+      category: string;
+      caption: string;
+    }) => data,
+  )
+  .handler(async ({ data }) => {
+    requireAuth(data.token);
+
+    const rateCheck = checkRateLimit("save:video", {
+      windowMs: 60 * 1000,
+      maxRequests: 30,
+    });
+    if (!rateCheck.allowed) throw new Error("Rate limit exceeded");
+
+    const db = await getDb();
+    const now = new Date().toISOString();
+    const doc: Omit<GalleryImage, "_id"> = {
+      type: "video",
+      src: data.secureUrl,
+      publicId: data.publicId,
+      category: data.category,
+      caption: data.caption,
+      order: 0,
+      createdAt: now,
+    };
+
+    const result = await db.collection(IMAGES_COLLECTION).insertOne(doc);
+
+    await db
+      .collection(CATEGORIES_COLLECTION)
+      .updateOne({ name: data.category }, { $inc: { imageCount: 1 } }, { upsert: true });
 
     return { ...doc, _id: result.insertedId.toString() } as GalleryImage;
   });
@@ -200,9 +279,7 @@ export const deleteGalleryImage = createServerFn({ method: "POST" })
     if (!rateCheck.allowed) throw new Error("Rate limit exceeded");
 
     const db = await getDb();
-    const image = await db
-      .collection(IMAGES_COLLECTION)
-      .findOne({ _id: new ObjectId(data.id) });
+    const image = await db.collection(IMAGES_COLLECTION).findOne({ _id: new ObjectId(data.id) });
 
     if (!image) throw new Error("Image not found");
 
@@ -211,7 +288,7 @@ export const deleteGalleryImage = createServerFn({ method: "POST" })
       try {
         await deleteFromCloudinary(image.publicId);
         if (image.beforePublicId) {
-           await deleteFromCloudinary(image.beforePublicId);
+          await deleteFromCloudinary(image.beforePublicId);
         }
       } catch {
         // Proceed even if Cloudinary delete fails
@@ -220,10 +297,9 @@ export const deleteGalleryImage = createServerFn({ method: "POST" })
 
     await db.collection(IMAGES_COLLECTION).deleteOne({ _id: new ObjectId(data.id) });
 
-    await db.collection(CATEGORIES_COLLECTION).updateOne(
-      { name: image.category },
-      { $inc: { imageCount: -1 } },
-    );
+    await db
+      .collection(CATEGORIES_COLLECTION)
+      .updateOne({ name: image.category }, { $inc: { imageCount: -1 } });
 
     return { success: true };
   });

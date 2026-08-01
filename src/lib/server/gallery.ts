@@ -116,8 +116,28 @@ export const deleteGalleryCategory = createServerFn({ method: "POST" })
     if (!rateCheck.allowed) throw new Error("Rate limit exceeded");
 
     const db = await getDb();
+    const category = await db
+      .collection(CATEGORIES_COLLECTION)
+      .findOne({ _id: new ObjectId(data.id) });
+    if (!category) throw new Error("Category not found");
+
+    const images = await db
+      .collection(IMAGES_COLLECTION)
+      .find({ category: category.name })
+      .toArray();
+
+    const { deleteFromCloudinary } = await import("../cloudinary");
+    for (const img of images) {
+      try {
+        if (img.publicId) await deleteFromCloudinary(img.publicId);
+        if (img.beforePublicId) await deleteFromCloudinary(img.beforePublicId);
+      } catch {
+        // Proceed even if Cloudinary delete fails
+      }
+    }
+
+    await db.collection(IMAGES_COLLECTION).deleteMany({ category: category.name });
     await db.collection(CATEGORIES_COLLECTION).deleteOne({ _id: new ObjectId(data.id) });
-    await db.collection(IMAGES_COLLECTION).deleteMany({ category: data.id });
 
     return { success: true };
   });

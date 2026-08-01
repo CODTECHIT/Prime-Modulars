@@ -38,7 +38,7 @@ export function AdminGallery() {
   const [showUpload, setShowUpload] = useState(false);
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [uploadType, setUploadType] = useState<"image" | "video">("image");
+  const [uploadType, setUploadType] = useState<"image" | "single" | "video">("image");
   const [uploadStep, setUploadStep] = useState<1 | 2>(1);
   const [uploadCat, setUploadCat] = useState<string>("Kitchens");
   const [uploadError, setUploadError] = useState("");
@@ -232,10 +232,13 @@ export function AdminGallery() {
     }
   };
 
-  const handleDeleteCategory = async (id: string) => {
-    if (!confirm("Delete this category and all its images?")) return;
+  const handleDeleteCategory = async (name: string) => {
+    const category = categories.find((c) => c.name === name);
+    if (!category?._id) return;
+    if (!confirm(`Delete the "${name}" category and all its images?`)) return;
     try {
-      await deleteGalleryCategory({ data: { token: getToken(), id } });
+      await deleteGalleryCategory({ data: { token: getToken(), id: category._id } });
+      setSelectedCat("All");
       await loadData();
     } catch (e) {
       console.error(e);
@@ -282,19 +285,30 @@ export function AdminGallery() {
         </div>
       </div>
 
-      <div className="mb-6 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap items-center gap-2">
         {allCategories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCat(cat)}
-            className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all ${
-              selectedCat === cat
-                ? "border-[var(--gold-muted)] bg-[var(--gold-muted)] text-white"
-                : "border-gray-200 text-gray-500 hover:border-[var(--gold-soft)] hover:text-[var(--gold-muted)]"
-            }`}
-          >
-            {cat}
-          </button>
+          <div key={cat} className="relative">
+            <button
+              onClick={() => setSelectedCat(cat)}
+              className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all ${
+                selectedCat === cat
+                  ? "border-[var(--gold-muted)] bg-[var(--gold-muted)] text-white"
+                  : "border-gray-200 text-gray-500 hover:border-[var(--gold-soft)] hover:text-[var(--gold-muted)]"
+              } ${selectedCat === cat && cat !== "All" ? "pr-8" : ""}`}
+            >
+              {cat}
+            </button>
+            {selectedCat === cat && cat !== "All" && (
+              <button
+                onClick={() => handleDeleteCategory(cat)}
+                title={`Delete category ${cat}`}
+                aria-label={`Delete category ${cat}`}
+                className="absolute right-1 top-1/2 grid size-5 -translate-y-1/2 place-items-center rounded-full text-white/70 transition-colors hover:bg-white/20 hover:text-white"
+              >
+                <Trash2 className="size-3" />
+              </button>
+            )}
+          </div>
         ))}
       </div>
 
@@ -305,7 +319,13 @@ export function AdminGallery() {
               <h2 className="text-lg font-semibold text-[var(--espresso-deep)]">
                 {uploadStep === 1
                   ? "Add to Gallery"
-                  : `Upload ${uploadType === "video" ? "Video" : "Image"}`}
+                  : `Upload ${
+                      uploadType === "video"
+                        ? "Video"
+                        : uploadType === "single"
+                          ? "Single Photo"
+                          : "Image"
+                    }`}
               </h2>
               <button onClick={() => setShowUpload(false)}>
                 <X className="size-5 text-gray-500" />
@@ -327,10 +347,29 @@ export function AdminGallery() {
                   </span>
                   <span>
                     <span className="block text-sm font-semibold text-[var(--espresso-deep)]">
-                      Image
+                      Before/After Image
                     </span>
                     <span className="block text-xs text-gray-400">
-                      Photos, including before/after sliders
+                      Pair of photos shown with a before/after slider
+                    </span>
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    setUploadType("single");
+                    setUploadStep(2);
+                  }}
+                  className="flex w-full items-center gap-4 rounded-xl border-2 border-dashed border-gray-200 p-5 text-left transition-colors hover:border-[var(--gold-soft)] hover:bg-gray-50"
+                >
+                  <span className="grid size-12 shrink-0 place-items-center rounded-lg bg-[var(--gold-soft)] text-[var(--gold-muted)]">
+                    <Image className="size-6" />
+                  </span>
+                  <span>
+                    <span className="block text-sm font-semibold text-[var(--espresso-deep)]">
+                      Single Photo
+                    </span>
+                    <span className="block text-xs text-gray-400">
+                      One photo, no before/after slider
                     </span>
                   </span>
                 </button>
@@ -364,7 +403,58 @@ export function AdminGallery() {
                   Back
                 </button>
 
-                {uploadType === "image" ? (
+                {uploadType === "video" ? (
+                  <div
+                    onClick={() => videoFileRef.current?.click()}
+                    className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 p-4 transition-colors hover:border-[var(--gold-soft)] text-center h-40"
+                  >
+                    {videoPreview ? (
+                      <video
+                        src={videoPreview}
+                        controls
+                        className="h-full w-full rounded-lg object-contain"
+                      />
+                    ) : (
+                      <>
+                        <FileVideo className="mb-2 size-8 text-gray-300" />
+                        <p className="text-xs text-gray-400">Video file (Required)</p>
+                        <p className="mt-1 text-[10px] text-gray-300">MP4, up to 150MB</p>
+                      </>
+                    )}
+                    <input
+                      ref={videoFileRef}
+                      type="file"
+                      accept="video/*"
+                      onChange={handleVideoFileSelect}
+                      className="hidden"
+                    />
+                  </div>
+                ) : uploadType === "single" ? (
+                  <div
+                    onClick={() => fileRef.current?.click()}
+                    className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 p-4 transition-colors hover:border-[var(--gold-soft)] text-center h-40"
+                  >
+                    {preview ? (
+                      <img
+                        src={preview}
+                        alt="Preview"
+                        className="h-full w-full rounded-lg object-contain"
+                      />
+                    ) : (
+                      <>
+                        <Image className="mb-2 size-8 text-gray-300" />
+                        <p className="text-xs text-gray-400">Photo (Required)</p>
+                      </>
+                    )}
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                  </div>
+                ) : (
                   <div className="grid grid-cols-2 gap-4">
                     <div
                       onClick={() => beforeFileRef.current?.click()}
@@ -415,32 +505,6 @@ export function AdminGallery() {
                       />
                     </div>
                   </div>
-                ) : (
-                  <div
-                    onClick={() => videoFileRef.current?.click()}
-                    className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 p-4 transition-colors hover:border-[var(--gold-soft)] text-center h-40"
-                  >
-                    {videoPreview ? (
-                      <video
-                        src={videoPreview}
-                        controls
-                        className="h-full w-full rounded-lg object-contain"
-                      />
-                    ) : (
-                      <>
-                        <FileVideo className="mb-2 size-8 text-gray-300" />
-                        <p className="text-xs text-gray-400">Video file (Required)</p>
-                        <p className="mt-1 text-[10px] text-gray-300">MP4, up to 150MB</p>
-                      </>
-                    )}
-                    <input
-                      ref={videoFileRef}
-                      type="file"
-                      accept="video/*"
-                      onChange={handleVideoFileSelect}
-                      className="hidden"
-                    />
-                  </div>
                 )}
 
                 <div>
@@ -486,7 +550,13 @@ export function AdminGallery() {
                   {uploading ? (
                     <Loader2 className="size-4 animate-spin" />
                   ) : (
-                    `Upload ${uploadType === "video" ? "Video" : "Image"} to Cloudinary`
+                    `Upload ${
+                      uploadType === "video"
+                        ? "Video"
+                        : uploadType === "single"
+                          ? "Single Photo"
+                          : "Image"
+                    } to Cloudinary`
                   )}
                 </button>
               </div>

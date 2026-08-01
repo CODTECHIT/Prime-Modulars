@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { Reveal, SectionLabel } from "./Reveal";
 
-const TESTIMONIALS = [
+export const TESTIMONIALS = [
   {
     name: "Ramesh Kumar",
     location: "Tadepalli",

@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getDb } from "../db";
 import { ObjectId } from "mongodb";
-import { verifyToken } from "../admin-auth";
-import { checkRateLimit, sanitizeString, sanitizeObject } from "../security";
+import { checkRateLimit, sanitizeObject, isValidObjectId } from "../security";
+import { requireAdmin } from "./guard";
 
 export interface Service {
   _id?: string;
@@ -19,37 +19,39 @@ export interface Service {
 
 const COLLECTION = "services";
 const ALLOWED_FIELDS = [
-  "title", "description", "iconName", "mainImage",
-  "mainImagePublicId", "portfolioCategory", "order",
+  "title",
+  "description",
+  "iconName",
+  "mainImage",
+  "mainImagePublicId",
+  "portfolioCategory",
+  "order",
 ];
 
 function requireAuth(token?: string): void {
-  if (!token || !verifyToken(token)) {
-    throw new Error("Unauthorized");
-  }
+  requireAdmin(token);
 }
 
-export const getServices = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const db = await getDb();
-    const services = await db
-      .collection(COLLECTION)
-      .find()
-      .sort({ order: 1 })
-      .toArray();
+function assertObjectId(id: string): ObjectId {
+  if (!isValidObjectId(id)) {
+    throw Object.assign(new Error("Invalid id"), { statusCode: 400 });
+  }
+  return new ObjectId(id);
+}
 
-    return services.map((s) => ({
-      ...s,
-      _id: s._id.toString(),
-    })) as Service[];
-  });
+export const getServices = createServerFn({ method: "GET" }).handler(async () => {
+  const db = await getDb();
+  const services = await db.collection(COLLECTION).find().sort({ order: 1 }).toArray();
+
+  return services.map((s) => ({
+    ...s,
+    _id: s._id.toString(),
+  })) as Service[];
+});
 
 export const createService = createServerFn({ method: "POST" })
   .validator(
-    (data: {
-      token: string;
-      service: Omit<Service, "_id" | "createdAt" | "updatedAt">;
-    }) => data,
+    (data: { token: string; service: Omit<Service, "_id" | "createdAt" | "updatedAt"> }) => data,
   )
   .handler(async ({ data }) => {
     requireAuth(data.token);
@@ -108,15 +110,13 @@ export const updateService = createServerFn({ method: "POST" })
 
     const db = await getDb();
     const now = new Date().toISOString();
+    const id = assertObjectId(data.id);
 
-    await db.collection(COLLECTION).updateOne(
-      { _id: new ObjectId(data.id) },
-      { $set: { ...sanitized, updatedAt: now } },
-    );
-
-    const updated = await db
+    await db
       .collection(COLLECTION)
-      .findOne({ _id: new ObjectId(data.id) });
+      .updateOne({ _id: id }, { $set: { ...sanitized, updatedAt: now } });
+
+    const updated = await db.collection(COLLECTION).findOne({ _id: id });
 
     if (!updated) throw new Error("Service not found after update");
 
@@ -134,9 +134,7 @@ export const deleteService = createServerFn({ method: "POST" })
     }
 
     const db = await getDb();
-    const result = await db
-      .collection(COLLECTION)
-      .deleteOne({ _id: new ObjectId(data.id) });
+    const result = await db.collection(COLLECTION).deleteOne({ _id: assertObjectId(data.id) });
 
     if (result.deletedCount === 0) {
       throw new Error("Service not found");

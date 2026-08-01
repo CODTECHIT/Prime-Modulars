@@ -11,6 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { SITE_NAME, OG_IMAGE_URL } from "@/lib/seo";
 
 function NotFoundComponent() {
   const matches = useMatches();
@@ -99,8 +100,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Prime Modulars Company" },
+      { title: "Prime Modulars | Premium Modular Interiors in Tadepalli, Guntur" },
       { name: "author", content: "Prime Modulars Company" },
+      { name: "google-site-verification", content: "4nE_bSG8zaURIdcnbUqT8QqbRW65CRFzA22WrmyLq4M" },
+      { property: "og:site_name", content: SITE_NAME },
+      { property: "og:type", content: "website" },
+      { property: "og:image", content: OG_IMAGE_URL },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: OG_IMAGE_URL },
+      { name: "theme-color", content: "#1a1508" },
+    ],
+    scripts: [
+      {
+        src: "https://www.googletagmanager.com/gtag/js?id=G-3XV6RKRQCC",
+        async: true,
+      },
+      {
+        children: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-3XV6RKRQCC');`,
+      },
     ],
     links: [
       {
@@ -114,6 +134,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Manrope:wght@300;400;500;600;700&display=swap",
       },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/logo.png" },
     ],
   }),
 
@@ -125,7 +146,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <head>
         <HeadContent />
       </head>

@@ -14,6 +14,9 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/modular/admin")({
+  head: () => ({
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+  }),
   validateSearch: searchSchema,
   component: AdminPage,
 });
@@ -61,6 +64,7 @@ function AdminLoginForm() {
               <label className="block text-xs font-medium text-gray-600 mb-1.5">Email</label>
               <input
                 type="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -73,6 +77,7 @@ function AdminLoginForm() {
               <label className="block text-xs font-medium text-gray-600 mb-1.5">Password</label>
               <input
                 type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

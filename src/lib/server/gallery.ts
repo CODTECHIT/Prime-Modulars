@@ -1,8 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getDb } from "../db";
 import { ObjectId } from "mongodb";
-import { verifyToken } from "../admin-auth";
-import { checkRateLimit, sanitizeObject } from "../security";
+import {
+  checkRateLimit,
+  sanitizeObject,
+  sanitizeString,
+  isValidObjectId,
+  base64ByteLength,
+} from "../security";
+import { requireAdmin } from "./guard";
 
 export interface GalleryImage {
   _id?: string;
@@ -42,9 +48,26 @@ const ALLOWED_IMAGE_FIELDS = [
 const ALLOWED_CATEGORY_FIELDS = ["name", "description"];
 
 function requireAuth(token?: string): void {
-  if (!token || !verifyToken(token)) {
-    throw new Error("Unauthorized");
+  requireAdmin(token);
+}
+
+function assertObjectId(id: string): ObjectId {
+  if (!isValidObjectId(id)) {
+    throw Object.assign(new Error("Invalid id"), { statusCode: 400 });
   }
+  return new ObjectId(id);
+}
+
+function assertCategoryName(name: string): string {
+  const clean = sanitizeString(name).slice(0, 60);
+  if (!clean) {
+    throw Object.assign(new Error("Category is required"), { statusCode: 400 });
+  }
+  return clean;
+}
+
+function assertCaption(caption: string): string {
+  return sanitizeString(caption).slice(0, 500);
 }
 
 export const getGalleryImages = createServerFn({ method: "GET" })
@@ -116,9 +139,8 @@ export const deleteGalleryCategory = createServerFn({ method: "POST" })
     if (!rateCheck.allowed) throw new Error("Rate limit exceeded");
 
     const db = await getDb();
-    const category = await db
-      .collection(CATEGORIES_COLLECTION)
-      .findOne({ _id: new ObjectId(data.id) });
+    const id = assertObjectId(data.id);
+    const category = await db.collection(CATEGORIES_COLLECTION).findOne({ _id: id });
     if (!category) throw new Error("Category not found");
 
     const images = await db
@@ -137,7 +159,7 @@ export const deleteGalleryCategory = createServerFn({ method: "POST" })
     }
 
     await db.collection(IMAGES_COLLECTION).deleteMany({ category: category.name });
-    await db.collection(CATEGORIES_COLLECTION).deleteOne({ _id: new ObjectId(data.id) });
+    await db.collection(CATEGORIES_COLLECTION).deleteOne({ _id: id });
 
     return { success: true };
   });
@@ -163,20 +185,28 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
     });
     if (!rateCheck.allowed) throw new Error("Upload rate limit exceeded");
 
-    const type = data.type ?? "image";
+    const type = data.type === "video" ? "video" : "image";
+    const category = assertCategoryName(data.category);
+    const caption = assertCaption(data.caption ?? "");
+    const serviceId =
+      data.serviceId && isValidObjectId(data.serviceId) ? data.serviceId : undefined;
+
     const maxBytes = type === "video" ? 150 * 1024 * 1024 : 10 * 1024 * 1024;
-    if (data.base64.length > maxBytes) {
+    if (!data.base64 || base64ByteLength(data.base64) > maxBytes) {
       throw new Error(
         type === "video"
           ? "Video too large. Maximum size is 150MB."
           : "File too large. Maximum size is 10MB.",
       );
     }
+    if (data.beforeBase64 && base64ByteLength(data.beforeBase64) > 10 * 1024 * 1024) {
+      throw new Error("Before image too large. Maximum size is 10MB.");
+    }
 
     const { uploadToCloudinary } = await import("../cloudinary");
     const uploadResult = await uploadToCloudinary(
       data.base64,
-      `gallery/${data.category}/${type === "video" ? "videos" : "images"}`,
+      `gallery/${category}/${type === "video" ? "videos" : "images"}`,
       { resourceType: type },
     );
 
@@ -184,7 +214,7 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
     if (type === "image" && data.beforeBase64) {
       beforeUploadResult = await uploadToCloudinary(
         data.beforeBase64,
-        `gallery/${data.category}/before`,
+        `gallery/${category}/before`,
       );
     }
 
@@ -196,9 +226,9 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
       publicId: uploadResult.public_id,
       beforeSrc: beforeUploadResult?.secure_url,
       beforePublicId: beforeUploadResult?.public_id,
-      category: data.category,
-      caption: data.caption,
-      serviceId: data.serviceId,
+      category,
+      caption,
+      serviceId,
       order: 0,
       createdAt: now,
     };
@@ -207,7 +237,7 @@ export const uploadGalleryImage = createServerFn({ method: "POST" })
 
     await db
       .collection(CATEGORIES_COLLECTION)
-      .updateOne({ name: data.category }, { $inc: { imageCount: 1 } }, { upsert: true });
+      .updateOne({ name: category }, { $inc: { imageCount: 1 } }, { upsert: true });
 
     return { ...doc, _id: result.insertedId.toString() } as GalleryImage;
   });
@@ -230,9 +260,11 @@ export const getGalleryUploadConfig = createServerFn({ method: "POST" })
       api_secret: process.env.CLOUDINARY_API_SECRET,
     });
 
+    const category = assertCategoryName(data.category);
+    const resourceType = data.type === "video" ? "video" : "image";
     const timestamp = Math.round(Date.now() / 1000);
-    const folder = `prime-modulars/gallery/${data.category}/${
-      data.type === "video" ? "videos" : "images"
+    const folder = `prime-modulars/gallery/${category}/${
+      resourceType === "video" ? "videos" : "images"
     }`;
     const paramsToSign = { timestamp, folder };
     const signature = cloudinary.utils.api_sign_request(
@@ -246,7 +278,7 @@ export const getGalleryUploadConfig = createServerFn({ method: "POST" })
       signature,
       timestamp: String(timestamp),
       folder,
-      resourceType: data.type,
+      resourceType,
     };
   });
 
@@ -271,12 +303,21 @@ export const saveGalleryVideo = createServerFn({ method: "POST" })
 
     const db = await getDb();
     const now = new Date().toISOString();
+
+    const category = assertCategoryName(data.category);
+    const caption = assertCaption(data.caption ?? "");
+    const publicId = sanitizeString(data.publicId).replace(/[^a-zA-Z0-9/_-]/g, "");
+    const secureUrl = data.secureUrl.startsWith("https://") ? data.secureUrl.slice(0, 500) : "";
+    if (!publicId || !secureUrl) {
+      throw Object.assign(new Error("Invalid media reference"), { statusCode: 400 });
+    }
+
     const doc: Omit<GalleryImage, "_id"> = {
       type: "video",
-      src: data.secureUrl,
-      publicId: data.publicId,
-      category: data.category,
-      caption: data.caption,
+      src: secureUrl,
+      publicId,
+      category,
+      caption,
       order: 0,
       createdAt: now,
     };
@@ -285,7 +326,7 @@ export const saveGalleryVideo = createServerFn({ method: "POST" })
 
     await db
       .collection(CATEGORIES_COLLECTION)
-      .updateOne({ name: data.category }, { $inc: { imageCount: 1 } }, { upsert: true });
+      .updateOne({ name: category }, { $inc: { imageCount: 1 } }, { upsert: true });
 
     return { ...doc, _id: result.insertedId.toString() } as GalleryImage;
   });
@@ -299,7 +340,7 @@ export const deleteGalleryImage = createServerFn({ method: "POST" })
     if (!rateCheck.allowed) throw new Error("Rate limit exceeded");
 
     const db = await getDb();
-    const image = await db.collection(IMAGES_COLLECTION).findOne({ _id: new ObjectId(data.id) });
+    const image = await db.collection(IMAGES_COLLECTION).findOne({ _id: assertObjectId(data.id) });
 
     if (!image) throw new Error("Image not found");
 

@@ -1,6 +1,8 @@
 /**
  * Security utilities for server-side request protection.
- * Rate limiting, input sanitization, and security headers.
+ * Rate limiting, brute-force lockout, input sanitization, validation, and
+ * security headers. This module must stay isomorphic-safe (no node-only
+ * imports) because it is bundled into both client and server builds.
  */
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -35,6 +37,70 @@ export function checkRateLimit(
   return { allowed: true, remaining: config.maxRequests - entry.count };
 }
 
+// ─── Login brute-force lockout ──────────────────────────────────────────────
+
+export interface LockoutConfig {
+  maxAttempts: number;
+  lockoutMs: number;
+}
+
+const DEFAULT_LOCKOUT: LockoutConfig = {
+  maxAttempts: 5,
+  lockoutMs: 15 * 60 * 1000,
+};
+
+const loginAttempts = new Map<string, { count: number; lockedUntil: number }>();
+
+export function isLoginLocked(key: string): boolean {
+  const entry = loginAttempts.get(key);
+  if (!entry) return false;
+  if (Date.now() > entry.lockedUntil) {
+    loginAttempts.delete(key);
+    return false;
+  }
+  return entry.lockedUntil > Date.now();
+}
+
+export function lockoutMsRemaining(key: string): number {
+  const entry = loginAttempts.get(key);
+  if (!entry) return 0;
+  const remaining = entry.lockedUntil - Date.now();
+  return remaining > 0 ? remaining : 0;
+}
+
+/**
+ * Records a failed login attempt. Returns true when the account (or IP)
+ * becomes locked out as a result of this attempt.
+ */
+export function recordFailedLogin(key: string, config: LockoutConfig = DEFAULT_LOCKOUT): boolean {
+  const now = Date.now();
+  const entry = loginAttempts.get(key);
+
+  if (!entry || now > entry.lockedUntil) {
+    const fresh = { count: 1, lockedUntil: 0 };
+    if (fresh.count >= config.maxAttempts) {
+      fresh.lockedUntil = now + config.lockoutMs;
+    }
+    loginAttempts.set(key, fresh);
+    return fresh.lockedUntil > 0;
+  }
+
+  const count = entry.count + 1;
+  if (count >= config.maxAttempts) {
+    entry.count = count;
+    entry.lockedUntil = now + config.lockoutMs;
+    return true;
+  }
+  entry.count = count;
+  return false;
+}
+
+export function resetLoginAttempts(key: string): void {
+  loginAttempts.delete(key);
+}
+
+// ─── Input sanitization & validation ────────────────────────────────────────
+
 export function sanitizeString(input: string): string {
   return input
     .replace(/[<>]/g, "")
@@ -61,6 +127,26 @@ export function sanitizeObject<T extends Record<string, unknown>>(
   return sanitized;
 }
 
+export function validateEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export function isValidObjectId(id: unknown): id is string {
+  return typeof id === "string" && /^[a-f\d]{24}$/i.test(id);
+}
+
+/**
+ * Returns the decoded byte length of a base64 string. Base64 strings are also
+ * accepted with a data URL prefix ("data:...;base64,"); the prefix is ignored.
+ */
+export function base64ByteLength(input: string): number {
+  const body = input.includes(",") ? input.slice(input.indexOf(",") + 1) : input;
+  const padding = body.endsWith("==") ? 2 : body.endsWith("=") ? 1 : 0;
+  return Math.floor((body.length * 3) / 4) - padding;
+}
+
+// ─── Security headers ───────────────────────────────────────────────────────
+
 export function generateCspPolicy(): string {
   return [
     "default-src 'self'",
@@ -73,6 +159,7 @@ export function generateCspPolicy(): string {
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
+    "frame-ancestors 'none'",
   ].join("; ");
 }
 
@@ -80,15 +167,9 @@ export function securityHeaders(): Record<string, string> {
   return {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
-    "X-XSS-Protection": "1; mode=block",
     "Referrer-Policy": "strict-origin-when-cross-origin",
-    "Permissions-Policy":
-      "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
     "Content-Security-Policy": generateCspPolicy(),
     "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
   };
-}
-
-export function validateEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }

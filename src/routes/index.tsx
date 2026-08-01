@@ -5,41 +5,52 @@ import { About } from "@/components/site/About";
 import { Services } from "@/components/site/Services";
 import { Portfolio } from "@/components/site/Portfolio";
 import { Process } from "@/components/site/Process";
-import { Testimonials } from "@/components/site/Testimonials";
+import { Testimonials, TESTIMONIALS } from "@/components/site/Testimonials";
 import { Contact } from "@/components/site/Contact";
 
 import { useSmoothScroll } from "@/components/site/useSmoothScroll";
 
-const TITLE = "Prime Modulars   Premium Modular Interiors in Tadepalli, Guntur";
+import { SITE_URL, OG_IMAGE_URL, pageHead } from "@/lib/seo";
+import { CONTACT } from "@/data/site";
+
+const TITLE = "Prime Modulars | Premium Modular Interiors in Tadepalli, Guntur";
 const DESC =
   "Premium custom modular kitchens, wardrobes, TV units, pooja units, ceilings and full home interiors in Tadepalli, Guntur. 20+ years of 3D-designed craftsmanship since 2004.";
 
+const localBusinessSchema = {
+  "@context": "https://schema.org",
+  "@type": "HomeAndConstructionBusiness",
+  "@id": `${SITE_URL}/#business`,
+  name: "Prime Modulars Company",
+  url: `${SITE_URL}/`,
+  logo: OG_IMAGE_URL,
+  image: OG_IMAGE_URL,
+  description: DESC,
+  email: CONTACT.email,
+  telephone: `+91 ${CONTACT.phoneMain}`,
+  foundingDate: "2004",
+  priceRange: "₹₹",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Door No: 12-158/1, Road No: 20, Mahanadu, Tadepalli",
+    addressLocality: "Tadepalli",
+    addressRegion: "Andhra Pradesh",
+    postalCode: "522501",
+    addressCountry: "IN",
+  },
+  areaServed: ["Tadepalli", "Guntur", "Vijayawada", "Mangalagiri"],
+  sameAs: [`https://wa.me/${CONTACT.whatsapp}`],
+  review: TESTIMONIALS.map((t) => ({
+    "@type": "Review",
+    author: { "@type": "Person", name: t.name },
+    reviewBody: t.quote,
+  })),
+};
+
 export const Route = createFileRoute("/")({
   head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESC },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESC },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#1a1508" },
-    ],
-    links: [
-      {
-        rel: "preconnect",
-        href: "https://fonts.googleapis.com",
-      },
-      {
-        rel: "preconnect",
-        href: "https://fonts.gstatic.com",
-        crossOrigin: "anonymous",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Manrope:wght@400;500;600;700&display=swap",
-      },
-    ],
+    ...pageHead({ title: TITLE, description: DESC, path: "/" }),
+    scripts: [{ type: "application/ld+json", children: JSON.stringify(localBusinessSchema) }],
   }),
   component: Index,
 });

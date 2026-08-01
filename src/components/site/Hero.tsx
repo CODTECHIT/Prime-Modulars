@@ -3,6 +3,9 @@ import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Play, MapPin, Box, Award, PenTool, Headset } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
+const HEADLINE = "Spaces\nCrafted\nWith Precision";
+const TYPE_SPEED = 75;
+
 const SLIDES = [
   {
     src: "/assets/gallery/living-01.jpg",
@@ -19,10 +22,29 @@ export function Hero() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
   const [index, setIndex] = useState(0);
+  const [typed, setTyped] = useState("");
 
   useEffect(() => {
     const t = setInterval(() => setIndex((i) => (i + 1) % SLIDES.length), 5500);
     return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    let char = 0;
+    let interval: ReturnType<typeof setInterval> | undefined;
+    const timeout = setTimeout(() => {
+      interval = setInterval(() => {
+        char += 1;
+        setTyped(HEADLINE.slice(0, char));
+        if (char >= HEADLINE.length) {
+          clearInterval(interval);
+        }
+      }, TYPE_SPEED);
+    }, 600);
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+    };
   }, []);
 
   return (
@@ -38,6 +60,10 @@ export function Hero() {
             key={index}
             src={SLIDES[index].src}
             alt={SLIDES[index].alt}
+            width={1600}
+            height={1000}
+            fetchPriority={index === 0 ? "high" : "auto"}
+            decoding="async"
             initial={{ opacity: 0, scale: 1.06 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
@@ -83,13 +109,29 @@ export function Hero() {
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45, duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-4xl text-6xl font-medium leading-[1.1] text-white sm:text-7xl lg:text-[6.5rem] xl:text-[7.5rem] font-display"
+            className="relative max-w-4xl text-6xl font-medium leading-[1.1] text-white sm:text-7xl lg:text-[6.5rem] xl:text-[7.5rem] font-display"
+            aria-label={HEADLINE}
           >
-            Spaces
-            <br />
-            Crafted
-            <br />
-            <span className="block italic text-gold font-light mt-2">With Precision</span>
+            <span aria-hidden="true" className="invisible">
+              {HEADLINE.split("\n").map((line, i) => (
+                <span
+                  key={i}
+                  className={i === 2 ? "block italic text-gold font-light mt-2" : "block"}
+                >
+                  {line}
+                </span>
+              ))}
+            </span>
+            <span className="absolute inset-0">
+              {typed.split("\n").map((line, i) => (
+                <span
+                  key={i}
+                  className={i === 2 ? "block italic text-gold font-light mt-2" : "block"}
+                >
+                  {line}
+                </span>
+              ))}
+            </span>
           </motion.h1>
 
           {/* Subheading */}

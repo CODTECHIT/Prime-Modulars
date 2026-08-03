@@ -7,10 +7,11 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { AdminServices } from "@/components/admin/AdminServices";
 import { AdminGallery } from "@/components/admin/AdminGallery";
+import { AdminTestimonials } from "@/components/admin/AdminTestimonials";
 import { z } from "zod";
 
 const searchSchema = z.object({
-  view: z.enum(["dashboard", "services", "gallery"]).optional().default("dashboard"),
+  view: z.enum(["dashboard", "services", "gallery", "testimonials"]).optional().default("dashboard"),
 });
 
 export const Route = createFileRoute("/modular/admin")({
@@ -128,7 +129,7 @@ function AdminPage() {
   }, []);
 
   const setView = useCallback(
-    (view: "dashboard" | "services" | "gallery") => {
+    (view: "dashboard" | "services" | "gallery" | "testimonials") => {
       nav({ to: "/modular/admin", search: { view } });
     },
     [nav],
@@ -151,6 +152,7 @@ function AdminPage() {
       {search.view === "dashboard" && <AdminDashboard />}
       {search.view === "services" && <AdminServices />}
       {search.view === "gallery" && <AdminGallery />}
+      {search.view === "testimonials" && <AdminTestimonials />}
     </AdminLayout>
   );
 }

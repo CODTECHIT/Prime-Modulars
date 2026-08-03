@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { checkRateLimit, base64ByteLength, sanitizeString } from "../security";
 import { requireAdmin } from "./guard";
 
-const ALLOWED_FOLDERS = new Set(["services", "gallery"]);
+const ALLOWED_FOLDERS = new Set(["services", "gallery", "testimonials"]);
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 export const uploadImage = createServerFn({ method: "POST" })

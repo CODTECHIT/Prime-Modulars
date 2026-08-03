@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { Reveal, SectionLabel } from "./Reveal";
+import { getTestimonials } from "@/lib/server/testimonials";
+import { withCache } from "@/lib/cache";
 
 export const TESTIMONIALS = [
   {
@@ -42,10 +44,33 @@ export const TESTIMONIALS = [
 ];
 
 export function Testimonials() {
+  const [dbTestimonials, setDbTestimonials] = useState<any[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [index, setIndex] = useState(0);
-  const t = TESTIMONIALS[index];
-  const prev = () => setIndex((i) => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
-  const next = () => setIndex((i) => (i + 1) % TESTIMONIALS.length);
+
+  useEffect(() => {
+    withCache("testimonials", () => getTestimonials(), 5 * 60 * 1000)
+      .then((data) => {
+        if (data && data.length > 0) {
+          setDbTestimonials(data);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoaded(true));
+  }, []);
+
+  const displayList = loaded && dbTestimonials.length > 0 ? dbTestimonials : TESTIMONIALS;
+  const t = displayList[index] || {
+    name: "",
+    location: "",
+    project: "",
+    quote: "",
+    rating: 5,
+    image: ""
+  };
+
+  const prev = () => setIndex((i) => (i - 1 + displayList.length) % displayList.length);
+  const next = () => setIndex((i) => (i + 1) % displayList.length);
 
   return (
     <section id="testimonials" className="relative overflow-hidden bg-background py-24 sm:py-36">
@@ -84,7 +109,7 @@ export function Testimonials() {
                 {/* Project image */}
                 <div className="relative md:col-span-2 min-h-[16rem] overflow-hidden">
                   <img
-                    src="/assets/gallery/living-02.jpg"
+                    src={t.image || "/assets/gallery/living-02.jpg"}
                     alt="Client project showcase"
                     className="absolute inset-0 size-full object-cover"
                   />
@@ -109,7 +134,13 @@ export function Testimonials() {
                   {/* Stars */}
                   <div className="mt-8 flex items-center gap-1">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <svg key={i} viewBox="0 0 12 12" className="size-3.5 fill-primary">
+                      <svg
+                        key={i}
+                        viewBox="0 0 12 12"
+                        className={`size-3.5 ${
+                          i < (t.rating ?? 5) ? "fill-primary" : "fill-primary/20"
+                        }`}
+                      >
                         <path d="M6 0l1.5 4.5H12L8.25 7.5 9.75 12 6 9l-3.75 3 1.5-4.5L0 4.5h4.5z" />
                       </svg>
                     ))}
@@ -124,7 +155,7 @@ export function Testimonials() {
           <div className="mt-8 flex items-center justify-between">
             {/* Dots */}
             <div className="flex items-center gap-2">
-              {TESTIMONIALS.map((_, i) => (
+              {displayList.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setIndex(i)}

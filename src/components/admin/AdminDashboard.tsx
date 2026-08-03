@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { getServices, type Service } from "@/lib/server/services";
 import { getGalleryImages } from "@/lib/server/gallery";
-import { Grid3X3, Image, BarChart3, TrendingUp, type LucideIcon } from "lucide-react";
+import { getTestimonials, type Testimonial } from "@/lib/server/testimonials";
+import { Grid3X3, Image, BarChart3, TrendingUp, MessageSquare, type LucideIcon } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 
 function StatCard({
@@ -36,14 +37,16 @@ function StatCard({
 export function AdminDashboard() {
   const [services, setServices] = useState<Service[]>([]);
   const [images, setImages] = useState<unknown[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    Promise.all([getServices(), getGalleryImages({})]).then(
-      ([svcs, imgs]) => {
+    Promise.all([getServices(), getGalleryImages({}), getTestimonials()]).then(
+      ([svcs, imgs, tests]) => {
         setServices(svcs);
         setImages(imgs);
+        setTestimonials(tests);
         setLoading(false);
       },
       () => setLoading(false),
@@ -82,9 +85,9 @@ export function AdminDashboard() {
           color="#6366F1"
         />
         <StatCard
-          icon={TrendingUp}
-          label="Active"
-          value={services.length + images.length}
+          icon={MessageSquare}
+          label="Testimonials"
+          value={testimonials.length}
           color="#F59E0B"
         />
       </div>
@@ -109,6 +112,13 @@ export function AdminDashboard() {
             >
               <Image className="size-4 shrink-0" />
               <span>Upload Gallery Images</span>
+            </button>
+            <button
+              onClick={() => navigate({ to: "/modular/admin", search: { view: "testimonials" } })}
+              className="flex w-full items-center gap-3 rounded-lg border border-gray-100 p-3 text-left text-sm text-gray-600 transition-all hover:border-[var(--gold-soft)] hover:bg-[var(--gold-soft)]/10 hover:text-[var(--gold-muted)]"
+            >
+              <MessageSquare className="size-4 shrink-0" />
+              <span>Manage Testimonials</span>
             </button>
           </div>
         </div>

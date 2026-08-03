@@ -1,12 +1,13 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { LayoutDashboard, Grid3X3, Image, LogOut, Menu, X, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Grid3X3, Image, LogOut, Menu, X, ChevronRight, MessageSquare } from "lucide-react";
 import { TOKEN_KEY } from "@/lib/constants";
 
 const NAV_ITEMS = [
   { label: "Dashboard", icon: LayoutDashboard, view: "dashboard" as const },
   { label: "Services", icon: Grid3X3, view: "services" as const },
   { label: "Gallery", icon: Image, view: "gallery" as const },
+  { label: "Testimonials", icon: MessageSquare, view: "testimonials" as const },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {

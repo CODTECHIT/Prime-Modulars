@@ -46,8 +46,8 @@ export function Footer() {
               className="size-20 object-contain drop-shadow-md"
             />
             <div>
-              <p className="font-display text-lg font-light text-foreground">Prime Modulars</p>
-              <p className="label-caps text-[0.6rem] text-primary">Company · Est. 2004</p>
+              <p className="font-display text-base font-normal text-foreground">Prime Modulars Industries Private Limited</p>
+              <p className="label-caps text-[0.6rem] text-primary">Est. 2004</p>
             </div>
           </Link>
 

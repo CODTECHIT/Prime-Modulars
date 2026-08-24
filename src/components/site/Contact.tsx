@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Phone, Mail, MapPin, MessageSquare, Send, CheckCircle2, ChevronRight } from "lucide-react";
+import { Phone, Mail, MapPin, MessageSquare, Send, CheckCircle2, ChevronRight, ShieldCheck } from "lucide-react";
 import { Reveal, SectionLabel } from "./Reveal";
 import { CONTACT } from "@/data/site";
 
@@ -121,6 +121,25 @@ export function Contact() {
               </div>
               <ChevronRight className="ml-auto size-4 text-muted-foreground transition-all group-hover:text-primary group-hover:translate-x-1" />
             </a>
+
+            {/* GST Details */}
+            <div className="flex items-start gap-4 rounded-xl border border-primary/40 bg-primary/5 p-5">
+              <div className="grid size-11 shrink-0 place-items-center rounded-lg border border-primary/40 bg-primary">
+                <ShieldCheck className="size-4 text-primary-foreground" strokeWidth={1.5} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="label-caps text-primary font-bold">GST Registered Business</p>
+                  <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[0.6rem] font-bold text-primary uppercase tracking-wider">Verified</span>
+                </div>
+                <p className="mt-1 font-mono text-base font-bold tracking-wider text-foreground">
+                  {CONTACT.gstin}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Official GSTIN · Prime Modulars Company
+                </p>
+              </div>
+            </div>
 
             {/* Address */}
             <div className="flex items-start gap-4 rounded-xl border border-border bg-background p-5">

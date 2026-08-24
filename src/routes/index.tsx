@@ -28,6 +28,8 @@ const localBusinessSchema = {
   description: DESC,
   email: CONTACT.email,
   telephone: `+91 ${CONTACT.phoneMain}`,
+  vatID: CONTACT.gstin,
+  taxID: CONTACT.gstin,
   foundingDate: "2004",
   priceRange: "₹₹",
   address: {

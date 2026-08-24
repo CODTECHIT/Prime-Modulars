@@ -1,5 +1,5 @@
 import { CONTACT } from "@/data/site";
-import { Phone, Mail, MapPin, MessageSquare } from "lucide-react";
+import { Phone, Mail, MapPin, MessageSquare, ShieldCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 const NAV = [
@@ -12,6 +12,7 @@ const NAV = [
 ];
 
 const CONTACT_ITEMS = [
+  { icon: ShieldCheck, label: `GST Registered: ${CONTACT.gstin}`, href: "#" },
   { icon: Phone, label: CONTACT.phoneMain, href: `tel:${CONTACT.phoneMain}` },
   { icon: Phone, label: CONTACT.phoneAlt, href: `tel:${CONTACT.phoneAlt}` },
   { icon: Mail, label: CONTACT.email, href: `mailto:${CONTACT.email}` },
@@ -55,16 +56,23 @@ export function Footer() {
             Mangalagiri and beyond since 2004.
           </p>
 
+          <div className="mt-4 inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs text-foreground font-medium">
+            <ShieldCheck className="size-3.5 text-primary shrink-0" />
+            <span>GST Registered: <strong className="font-mono text-primary font-bold">{CONTACT.gstin}</strong></span>
+          </div>
+
           {/* Social / CTA */}
-          <a
-            href={`https://wa.me/${CONTACT.whatsapp}`}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-6 inline-flex items-center gap-2 rounded-full border border-primary/40 px-5 py-2.5 text-xs font-semibold uppercase tracking-widest text-primary transition-all hover:bg-[var(--primary)] hover:border-primary"
-          >
-            <MessageSquare className="size-3.5" />
-            WhatsApp Us
-          </a>
+          <div className="mt-6">
+            <a
+              href={`https://wa.me/${CONTACT.whatsapp}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/40 px-5 py-2.5 text-xs font-semibold uppercase tracking-widest text-primary transition-all hover:bg-[var(--primary)] hover:border-primary"
+            >
+              <MessageSquare className="size-3.5" />
+              WhatsApp Us
+            </a>
+          </div>
         </div>
 
         {/* Nav links */}
@@ -116,8 +124,8 @@ export function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-border/50">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 py-5 text-xs text-muted-foreground sm:flex-row lg:px-12">
-          <p>© {new Date().getFullYear()} Prime Modulars Company. All rights reserved.</p>
-          <p>Tadepalli · Guntur Dist. · Andhra Pradesh, India</p>
+          <p>© {new Date().getFullYear()} Prime Modulars Company. All rights reserved. · GSTIN: <span className="font-mono font-medium text-foreground">{CONTACT.gstin}</span></p>
+          <p>GST Registered Entity · Tadepalli · Guntur Dist. · Andhra Pradesh, India</p>
         </div>
       </div>
     </footer>

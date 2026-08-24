@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
-import { ArrowRight, Play, MapPin, Box, Award, PenTool, Headset } from "lucide-react";
+import { ArrowRight, Play, MapPin, Box, Award, PenTool, Headset, ShieldCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { CONTACT } from "@/data/site";
 
 const HEADLINE = "Spaces\nCrafted\nWith Precision";
 const TYPE_SPEED = 75;
@@ -81,19 +82,25 @@ export function Hero() {
         className="relative z-10 flex flex-1 flex-col justify-center px-6 pt-32 pb-8 sm:pt-48 sm:pb-12 lg:px-16 xl:px-24"
       >
         <div className="w-full max-w-7xl mx-auto flex flex-col items-start text-left">
-          {/* Location & Est */}
+          {/* Location & Est & GST */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="mb-6 flex flex-col gap-2"
+            className="mb-6 flex flex-wrap items-center gap-3 sm:gap-4"
           >
             <div className="flex items-center gap-2 text-white font-semibold tracking-[0.2em] text-xs sm:text-sm uppercase">
-              <MapPin className="size-4" />
+              <MapPin className="size-4 text-gold" />
               <span>Tadepalli • Guntur</span>
             </div>
+            <span className="text-white/40">•</span>
             <div className="text-gold font-semibold tracking-[0.2em] text-xs sm:text-sm uppercase">
               EST. 2004
+            </div>
+            <span className="text-white/40">•</span>
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gold backdrop-blur-md">
+              <ShieldCheck className="size-3.5" />
+              <span>GST Registered: <strong className="font-mono text-white tracking-widest">{CONTACT.gstin}</strong></span>
             </div>
           </motion.div>
 

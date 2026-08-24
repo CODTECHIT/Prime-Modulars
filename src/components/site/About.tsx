@@ -1,8 +1,10 @@
 import { Reveal, SectionLabel } from "./Reveal";
 import { CheckCircle, Eye, Gem, Brush, ShieldCheck } from "lucide-react";
+import { CONTACT } from "@/data/site";
 
 const HIGHLIGHTS = [
   "20+ years of delivering premium interiors",
+  `GST Registered Business (GSTIN: ${CONTACT.gstin})`,
   "Full 3D visualization before execution",
   "100% customized to your lifestyle",
   "End-to-end project management",
@@ -125,6 +127,10 @@ export function About() {
             <div>
               <p className="font-display text-lg text-foreground">Prime Modulars Company</p>
               <p className="label-caps mt-1 text-primary">Est. 2004 · Tadepalli, Guntur</p>
+              <div className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-medium text-foreground">
+                <ShieldCheck className="size-3.5 text-primary shrink-0" />
+                <span>GST Registered: <strong className="font-mono text-primary font-bold">{CONTACT.gstin}</strong></span>
+              </div>
             </div>
           </div>
         </Reveal>

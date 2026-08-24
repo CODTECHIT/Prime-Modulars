@@ -5,6 +5,8 @@ export const CONTACT = {
   phoneAlt: "9848290038",
   email: "primemodulars@gmail.com",
   whatsapp: "919652016213",
+  gstin: "37AAVP08854H1ZR",
+  gstRegistered: "GST Registered",
   mapSrc:
     "https://www.google.com/maps?q=Mahanadu%20Road%20No%2020%2C%20Tadepalli%2C%20Guntur%2C%20Andhra%20Pradesh%20522501&output=embed",
 };

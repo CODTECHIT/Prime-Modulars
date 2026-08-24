@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Menu, X, Phone, ChevronRight } from "lucide-react";
+import { Menu, X, Phone, ChevronRight, ShieldCheck } from "lucide-react";
 import { CONTACT } from "@/data/site";
 import { Link } from "@tanstack/react-router";
 
@@ -46,11 +46,23 @@ export function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 border-b border-border/50 bg-[#FDFBF7] shadow-sm backdrop-blur-xl ${
-        solid ? "py-2" : "py-4"
+        solid ? "py-1 sm:py-2" : "py-2 sm:py-3"
       }`}
     >
+      {/* Top trust bar */}
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 sm:px-10 pb-1.5 sm:pb-2 text-[0.65rem] sm:text-xs text-muted-foreground border-b border-border/40">
+        <div className="flex items-center gap-1.5 font-semibold text-primary uppercase tracking-wider">
+          <ShieldCheck className="size-3.5 text-primary shrink-0" />
+          <span>GST Registered</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="hidden sm:inline text-muted-foreground">GSTIN:</span>
+          <strong className="font-mono text-foreground font-bold tracking-wider">{CONTACT.gstin}</strong>
+        </div>
+      </div>
+
       {/* Desktop */}
-      <nav className="mx-auto hidden max-w-7xl grid-cols-3 items-center gap-6 px-8 lg:grid">
+      <nav className="mx-auto hidden max-w-7xl grid-cols-3 items-center gap-6 px-8 pt-1.5 lg:grid">
         {/* Left links */}
         <div className="flex items-center gap-8">
           {LEFT.map((l) => (
@@ -69,7 +81,7 @@ export function Navbar() {
           <Link
             to="/"
             aria-label="Prime Modulars home"
-            className="mx-auto flex items-center gap-3 group absolute left-1/2 top-2 -translate-x-1/2"
+            className="mx-auto flex items-center gap-3 group absolute left-1/2 top-2 -translate-x-1/2 z-20"
           >
             <span
               className={`relative grid place-items-center transition-all duration-500 group-hover:scale-105 ${
@@ -171,7 +183,11 @@ export function Navbar() {
                   </Link>
                 </motion.div>
               ))}
-              <div className="mt-4 flex gap-3">
+              <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-primary/10 border border-primary/20 py-2.5 px-4 text-center text-xs text-foreground">
+                <ShieldCheck className="size-4 text-primary shrink-0" />
+                <span>GST Registered: <strong className="font-mono text-primary font-bold">{CONTACT.gstin}</strong></span>
+              </div>
+              <div className="mt-3 flex gap-3">
                 <a
                   href={`tel:${CONTACT.phoneMain}`}
                   className="btn-gold flex-1 justify-center py-3 text-center"

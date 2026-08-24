@@ -124,7 +124,7 @@ export function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-border/50">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 py-5 text-xs text-muted-foreground sm:flex-row lg:px-12">
-          <p>© {new Date().getFullYear()} Prime Modulars Company. All rights reserved. · GSTIN: <span className="font-mono font-medium text-foreground">{CONTACT.gstin}</span></p>
+          <p>© {new Date().getFullYear()} Prime Modulars Industries Private Limited. All rights reserved. · GSTIN: <span className="font-mono font-medium text-foreground">{CONTACT.gstin}</span></p>
           <p>GST Registered Entity · Tadepalli · Guntur Dist. · Andhra Pradesh, India</p>
         </div>
       </div>

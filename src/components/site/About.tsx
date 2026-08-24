@@ -94,7 +94,7 @@ export function About() {
           <div className="rule-gold my-8 max-w-36" />
 
           <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
-            Prime Modulars Company has been transforming homes and commercial spaces since 2004,
+            Prime Modulars Industries Private Limited has been transforming homes and commercial spaces since 2004,
             blending 3D design precision with premium craftsmanship. Based in Tadepalli, Guntur, the
             studio specialises in fully customised modular interiors.
           </p>
@@ -125,7 +125,7 @@ export function About() {
               className="size-24 object-contain opacity-90"
             />
             <div>
-              <p className="font-display text-lg text-foreground">Prime Modulars Company</p>
+              <p className="font-display text-lg text-foreground">Prime Modulars Industries Private Limited</p>
               <p className="label-caps mt-1 text-primary">Est. 2004 · Tadepalli, Guntur</p>
               <div className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-medium text-foreground">
                 <ShieldCheck className="size-3.5 text-primary shrink-0" />

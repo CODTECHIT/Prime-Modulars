@@ -21,7 +21,7 @@ const localBusinessSchema = {
   "@context": "https://schema.org",
   "@type": "HomeAndConstructionBusiness",
   "@id": `${SITE_URL}/#business`,
-  name: "Prime Modulars Company",
+  name: "Prime Modulars Industries Private Limited",
   url: `${SITE_URL}/`,
   logo: OG_IMAGE_URL,
   image: OG_IMAGE_URL,

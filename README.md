@@ -1,4 +1,4 @@
-# Prime Modulars Company
+# Prime Modulars Industries Private Limited
 
 ## Development
 

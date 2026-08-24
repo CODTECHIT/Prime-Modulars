@@ -101,7 +101,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Prime Modulars | Premium Modular Interiors in Tadepalli, Guntur" },
-      { name: "author", content: "Prime Modulars Company" },
+      { name: "author", content: "Prime Modulars Industries Private Limited" },
       { name: "google-site-verification", content: "4nE_bSG8zaURIdcnbUqT8QqbRW65CRFzA22WrmyLq4M" },
       { property: "og:site_name", content: SITE_NAME },
       { property: "og:type", content: "website" },

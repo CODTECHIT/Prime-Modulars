@@ -136,7 +136,7 @@ export function Contact() {
                   {CONTACT.gstin}
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Official GSTIN · Prime Modulars Company
+                  Official GSTIN · Prime Modulars Industries Private Limited
                 </p>
               </div>
             </div>
